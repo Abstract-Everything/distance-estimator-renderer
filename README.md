@@ -35,14 +35,14 @@ Each shape exposes its own set of variables together with some other ones shared
 These are previewed in the above GIF.
 
 2D controls:
-W, A, S, D / Drag mouse with left click to move camera.
-Mouse scroll to zoom.
+* W, A, S, D / Drag mouse with left click to move camera.
+* Mouse scroll to zoom.
 
 3D controls:
-W, A, S, D, space, control to move camera.
-Mouse with left click drag to look around.
+* W, A, S, D, space, control to move camera.
+* Mouse with left click drag to look around.
 
-Use shift and control to respectively speed up or slow down.
+Use shift and control to speed up or slow down the camera movement speed.
 
 ### Acknowledgements
 
