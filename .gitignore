@@ -1,0 +1,6 @@
+# Build
+build/
+
+# Editor files
+.ccls-cache/
+compile_commands.json
