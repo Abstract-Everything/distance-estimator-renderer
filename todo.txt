@@ -1,6 +1,6 @@
 Development:
   Add tests.
-  Add continious integration.
+  Add continuous integration.
   Use issues instead of this document.
 
 User experience:
@@ -30,4 +30,4 @@ Rendering:
 Performance:
   Render image by splitting it into smaller tiles.
   Reduce detail while panning/ moving camera.
-  Rerender with increased detail if camera is not moving.
+  Render with increased detail if camera is not moving.
