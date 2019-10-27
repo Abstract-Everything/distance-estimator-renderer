@@ -1,0 +1,33 @@
+Development:
+  Add tests.
+  Add continious integration.
+  Use issues instead of this document.
+
+User experience:
+  Add constraints to glsl variables (Valid range, should be normalized, ..).
+  Put all errors in a logger instead of the standard streams.
+
+Fractals:
+  Basic shapes (Triangle, Rectangle, Torus, ).
+  Mandelbulb.
+  Mandelbox.
+  Kaledioscopic IFS.
+
+Rendering:
+  Anti aliasing.
+  High resolution render + downscale.
+
+  Transformations.
+  Multiple objects in scene with boolean operators on DE.
+
+  Ambient occlusion.
+  Lighting support (Hard and soft shadows).
+  Reflections.
+  Transmissive.
+  Dynamic colouring scheme.
+  Add more colouring schemes.
+
+Performance:
+  Render image by splitting it into smaller tiles.
+  Reduce detail while panning/ moving camera.
+  Rerender with increased detail if camera is not moving.

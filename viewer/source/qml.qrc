@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="">
+    <file>main.qml</file>
+    <file>Inspector.qml</file>
+    <file>Viewport.qml</file>
+  </qresource>
+</RCC>
