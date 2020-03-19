@@ -1,4 +1,4 @@
-add_library (renderer
+add_library (renderer STATIC
   "${CMAKE_CURRENT_LIST_DIR}/renderer"
 
   "${CMAKE_CURRENT_LIST_DIR}/shaders/shader"
@@ -7,7 +7,7 @@ add_library (renderer
   "${CMAKE_CURRENT_LIST_DIR}/preprocessor/parser"
 
   "${CMAKE_CURRENT_LIST_DIR}/interfaces/gl_interface"
-
+ 
   "${CMAKE_CURRENT_LIST_DIR}/utilities/file_loader"
 )
 
@@ -30,34 +30,58 @@ set_target_properties (renderer
   ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
 )
 
-target_compile_options (renderer PRIVATE
-  -Wall
-  -Wextra
-  -Werror
-  -fstrict-aliasing
-  -pedantic-errors
-  -pedantic
-)
+if (<$CXX_COMPILER_ID:"GNU, Clang">)
+  target_compile_options (renderer PRIVATE
+    -Wall
+    -Wextra
+    -Werror
+    -fstrict-aliasing
+    -pedantic-errors
+    -pedantic
+	
+    $<$<CONFIG:RELEASE>:
+      -O3>
 
-target_compile_options (renderer PRIVATE
+    $<$<CONFIG:DEBUG>:
+      -g
+      $<$<CXX_COMPILER_ID:Clang>:-D_GLIBCXX_DEBUG>>
+  )
+
+elseif (<$CXX_COMPILER_ID:"MSVC">)
+  target_compile_options (renderer PRIVATE
+    /W4
+    /WX
+	
+    $<$<CONFIG:RELEASE>:
+      /O2>
+
+    $<$<CONFIG:DEBUG>:
+      /Zi>
+  )
+  
+endif ()
+
+target_compile_definitions (renderer PRIVATE
   $<$<CONFIG:RELEASE>:
-    -O3
-    -DNDEBUG>
+	NDEBUG>
 
   $<$<CONFIG:DEBUG>:
-    -g
-    -DDEBUG
-    $<$<CXX_COMPILER_ID:Clang>:-D_GLIBCXX_DEBUG>>
+	DEBUG>
+)
+
+target_compile_definitions (renderer PUBLIC
+  GLEW_STATIC
 )
 
 target_link_libraries (renderer PUBLIC
-  GL
-  GLEW
+  OpenGL::GL
+  GLEW::GLEW	
 )
 
 add_custom_command (
   TARGET renderer
   COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_LIST_DIR}/glsl ${CMAKE_BINARY_DIR}/resources/glsl/
+    "${CMAKE_CURRENT_LIST_DIR}/glsl"
+    "${CMAKE_BINARY_DIR}/resources/glsl/"
   COMMENT "Copying shaders." VERBATIM)
 

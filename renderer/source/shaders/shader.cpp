@@ -76,7 +76,7 @@ void Shader::set_uniform (Uniform const &uniform)
   try
   { gl::set_uniform (program_id, uniform); }
 
-  catch (std::bad_cast const &e)
+  catch (std::bad_cast const & /* e */)
   { std::cerr << "Tried to write to " << uniform.get_name() << " with a different type.\n"; }
 }
 

@@ -140,9 +140,21 @@ int Viewport::get_update_flags ()
 
 Viewport_Renderer::Viewport_Renderer () : QQuickFramebufferObject::Renderer ()
 {
-  const std::filesystem::path executable_path (QCoreApplication::applicationDirPath ().toStdString ());
-  const std::filesystem::path glsl_path = executable_path.parent_path () / "resources/glsl";
-  renderer = std::make_unique <renderer::Renderer> (glsl_path);
+
+  std::filesystem::path build;
+  std::filesystem::path current = std::filesystem::current_path();
+  for (const std::filesystem::path& subpath : current)
+  {
+    std::string folder = subpath.string();
+    build.append(folder);
+
+    std::transform(folder.begin(), folder.end(), folder.begin(), ::tolower);
+    if (folder == "build")
+      break;
+  }
+
+  const std::filesystem::path glsl = build / "resources" / "glsl";
+  renderer = std::make_unique <renderer::Renderer> (glsl);
 }
 
 QOpenGLFramebufferObject *Viewport_Renderer::createFramebufferObject (QSize const &size)

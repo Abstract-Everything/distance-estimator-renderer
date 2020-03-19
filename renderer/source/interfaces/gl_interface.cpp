@@ -1,5 +1,6 @@
 #include "gl_interface.hpp"
 
+#include <algorithm>
 #include <map>
 #include <functional>
 
@@ -20,8 +21,7 @@ void check_errors(GLuint check_location, Check_Error_Type type)
       GLenum status,
       std::string const &message,
       std::function<void (GLuint, GLenum, GLint *)> iv,
-      std::function<void (GLuint, GLsizei, GLsizei *, GLchar *)> log,
-      std::function<void (GLuint)> cleanup
+      std::function<void (GLuint, GLsizei, GLsizei *, GLchar *)> log
     ) -> std::pair <bool, std::string>
   {
     int success = 0, length = 0;
@@ -34,13 +34,12 @@ void check_errors(GLuint check_location, Check_Error_Type type)
 
     std::string info_log(length, ' ');
     log (check_location, length, &length, &info_log[0]);
-    cleanup (check_location);
     return {false, message + "\n" + info_log + "\n"};
   };
 
   auto [success, message] = type == Check_Error_Type::Shader ?
-    check_error (GL_COMPILE_STATUS, "Error shader compilation failed:", glGetShaderiv,  glGetShaderInfoLog,  glDeleteShader) :
-    check_error (GL_LINK_STATUS,    "Error linking shader program:"   , glGetProgramiv, glGetProgramInfoLog, glDeleteProgram);
+    check_error (GL_COMPILE_STATUS, "Error shader compilation failed:", glGetShaderiv,  glGetShaderInfoLog) :
+    check_error (GL_LINK_STATUS,    "Error linking shader program:"   , glGetProgramiv, glGetProgramInfoLog);
   if (!success) std::cerr << message;
 }
 
@@ -92,7 +91,10 @@ void init ()
 {
   GLenum status = glewInit();
   if (status != GLEW_OK)
-    std::cerr <<  "Error initialising GLEW: " << glewGetErrorString (status) << "\n";
+  {
+    std::cerr << "Error initialising GLEW: " << glewGetErrorString(status) << "\n";
+    return;
+  }
 
   GLint flags;
   glGetIntegerv (GL_CONTEXT_FLAGS, &flags);
@@ -122,11 +124,14 @@ GLuint create_program(std::vector<unsigned int> const &shaders)
     glAttachShader(program_id, shader);
 
   glLinkProgram(program_id);
-
-  for (auto const &shader : shaders)
-    glDeleteShader(shader);
-
   check_errors(program_id, Check_Error_Type::Program);
+
+  for (auto const& shader : shaders)
+  {
+    glDetachShader (program_id, shader);
+    glDeleteShader (shader);
+  }
+
   return program_id;
 }
 

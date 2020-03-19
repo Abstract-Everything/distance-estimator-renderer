@@ -30,8 +30,8 @@ std::vector <std::unique_ptr <Uniform>> Renderer::set_shader (std::filesystem::p
 std::vector <std::filesystem::path> Renderer::get_shaders ()
 {
   std::vector <std::filesystem::path> shaders;
-  auto glsl_paths = { io::get_glsl_path() / "2d/signed_distance_functions",
-                      io::get_glsl_path() / "3d/signed_distance_functions"};
+  auto glsl_paths = { io::get_glsl_path() / "2d" / "signed_distance_functions",
+                      io::get_glsl_path() / "3d" / "signed_distance_functions"};
   for (io::file_query <std::filesystem::path> const &path :
        io::load_recursive (glsl_paths, "frag"))
   {

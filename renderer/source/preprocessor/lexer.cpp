@@ -1,5 +1,6 @@
 #include "lexer.hpp"
 
+#include <sstream>
 #include <algorithm>
 #include <cassert>
 
@@ -18,7 +19,7 @@ Lexer::Lexer (std::filesystem::path const &p_filepath) : filepath (p_filepath)
 
   std::string line;
   std::stringstream file_stream (file.contents);
-  while (getline (file_stream, line, '\n'))
+  while (std::getline (file_stream, line, '\n'))
   {
     tokenize (line);
     line_number++;

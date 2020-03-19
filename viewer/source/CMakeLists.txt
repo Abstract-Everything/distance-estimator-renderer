@@ -30,30 +30,50 @@ target_compile_definitions (viewer PRIVATE
   ${${Qt5Quick_DEFINITIONS}}
 )
 
-target_compile_options (viewer PRIVATE
-  -Wall
-  -Werror
-  -Wextra
-  -fstrict-aliasing
-  -pedantic-errors
-  -pedantic
-)
+if (<$CXX_COMPILER_ID:"GNU, Clang">)
+	target_compile_options (viewer PRIVATE
+	  -Wall
+	  -Wextra
+	  -Werror
+	  -fstrict-aliasing
+	  -pedantic-errors
+	  -pedantic
+	  
+	  $<$<CONFIG:RELEASE>:
+		-O3>
 
-target_compile_options (viewer PRIVATE
-  $<$<CONFIG:RELEASE>:
-    -O3
-    -DNDEBUG>
+	  $<$<CONFIG:DEBUG>:
+		-g
+		$<$<CXX_COMPILER_ID:Clang>:-D_GLIBCXX_DEBUG>>
+	)
+	
+	target_link_libraries (viewer
+		-lstdc++fs
+	)
 
-  $<$<CONFIG:DEBUG>:
-    -g
-    -DDEBUG
-    $<$<CXX_COMPILER_ID:Clang>:-D_GLIBCXX_DEBUG>>
+elseif(<$CXX_COMPILER_ID:"MSVC">)
+	target_compile_options (viewer PRIVATE
+	  /W4
+	  /WX
+	  
+	  $<$<CONFIG:RELEASE>:
+		/O2>
+
+	  $<$<CONFIG:DEBUG>:
+		/Zi>
+	)
+endif()
+
+target_compile_definitions (viewer PRIVATE
+	  $<$<CONFIG:RELEASE>:
+		NDEBUG>
+
+	  $<$<CONFIG:DEBUG>:
+		DEBUG>
 )
 
 target_link_libraries (viewer
   Qt5::Qml
   Qt5::Quick
   renderer
-
-  -lstdc++fs
 )

@@ -2,7 +2,6 @@
 
 #include "uniform.hpp"
 
-#define GLEW_STATIC
 #include <GL/glew.h>
 
 #include <vector>
@@ -24,4 +23,3 @@ GLuint create_program(std::vector<unsigned int> const &shaders);
 void set_uniform (GLuint program_id, renderer::Uniform const &uniform);
 
 }
-

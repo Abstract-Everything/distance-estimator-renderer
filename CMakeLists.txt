@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.10)
+cmake_minimum_required (VERSION 3.17)
 project (Distance_Estimation_Renderer
   VERSION 0.1
   DESCRIPTION "A Renderer which uses distance estimation to draw objects."
