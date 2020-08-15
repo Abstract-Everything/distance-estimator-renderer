@@ -1,11 +1,12 @@
+Features:
 Development:
   Add tests.
   Add continuous integration.
-  Use issues instead of this document.
 
 User experience:
   Add constraints to glsl variables (Valid range, should be normalized, ..).
-  Put all errors in a logger instead of the standard streams.
+  Put all errors in a logger instead of the standard streams/ qDebug.
+  Implement scroll using mouse wheel.
 
 Fractals:
   Basic shapes (Triangle, Rectangle, Torus, ).
@@ -26,6 +27,21 @@ Rendering:
   Transmissive.
   Dynamic colouring scheme.
   Add more colouring schemes.
+
+Enhancements:
+Project:
+  Use issues instead of this document.
+  CMake should update resources/glsl automatically.
+  Visual studio does not have the filters in project window.
+
+Code:
+  Refactor formatting to 4 tabs and remove spacing after functions.
+  Refactor lexer and parser for better error handling.
+  Move GLSL struct default values to variable declaration instead of struct definition.
+
+Rendering:
+  Fix aspect when scaling window resolution.
+  Fix stretching at the ends of the screen.
 
 Performance:
   Render image by splitting it into smaller tiles.

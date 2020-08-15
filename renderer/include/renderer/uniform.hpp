@@ -3,6 +3,7 @@
 #include <cassert>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace renderer
 {
@@ -33,8 +34,8 @@ public:
 
   Typed_Uniform (std::string const &p_name, std::vector <T> const &p_values)
   {
-   name = p_name;
-   values = p_values;
+    name = p_name;
+    values = p_values;
   }
 
 private:

@@ -1,10 +1,5 @@
 #requires_implementation
 
-struct Colouring
-{
-  vec3 background_colour = (0.4f, 0.4f, 0.4f);
-};
-
 uniform Colouring colouring;
 
 float DE (vec3 position);

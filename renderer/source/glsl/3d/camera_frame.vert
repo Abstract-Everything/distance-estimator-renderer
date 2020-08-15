@@ -12,12 +12,14 @@ out vec3 f_ray_direction;
  
 void main()
 {
-  vec3 world_up = vec3 (0.0f, 1.0f, 0.0f);
   float aspect = float(globals.resolution.y) / float (globals.resolution.x);
-  float distance = atan(camera.fov) * camera.near_plane;
+  float distance = atan(camera.fov) * camera.near_plane * camera.zoom;
 
-  vec3 forward = normalize (camera.forward) * camera.near_plane;
-  vec3 right = normalize (cross (world_up, forward)) * distance;
+  vec3 above = vec3 (0.0f, cos(camera.pitch), -sin(camera.pitch));
+  vec3 toward = vec3(sin(camera.yaw), 0.0f, cos(camera.yaw));
+  
+  vec3 right = normalize (cross (above, toward)) * distance;
+  vec3 forward = normalize (cross (right, above)) * camera.near_plane;
   vec3 up = normalize (cross (forward, right)) * distance * aspect;
 
   f_ray_direction = forward + right * v_position.x + up * v_position.y;

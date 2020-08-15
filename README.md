@@ -6,16 +6,25 @@ NOTE: the GIF encoding introduced some artefacts such as banding and noise due t
 
 ![Render](./julia_preview.gif)
 
-## Running the application
+## Building the application
 
-### Dependencies
+### Ubuntu
 
-* A C++ 17 compiler: tested using g++ 9
-* Cmake: minimum version 3.11
-* opengl + glew: supports version 3.0 es or above
-* Qt5: developed using 5.1.2 (Available [here](https://www.qt.io/download-qt-installer?hsCtaTracking=99d9dd4f-5681-48d2-b096-470725510d34%7C074ddad0-fdef-4e53-8aa8-5e8a876d6ab4), requires compiler tools to be selected during installation to work with cmake)
+Make sure that the following packages are installed:
 
-### Compiling and running
+```
+sudo apt install build-essential
+sudo apt install cmake
+sudo apt install extra-cmake-modules
+sudo apt install libglew-dev
+sudo apt install qtdeclarative5-dev 
+sudo apt install qml-module-qtquick2
+sudo apt install qml-module-qtquick-layouts
+sudo apt install qml-module-qtquick-controls
+sudo apt install qml-module-qtquick-controls2
+```
+
+Build and run:
 
 ```
 git clone https://github.com/Abstract-Everything/distance-estimator-renderer.git
@@ -25,6 +34,23 @@ cmake -DCMAKE_BUILD_TYPE="Release" -G "Unix Makefiles" ..
 make
 ./bin/viewer
 ```
+
+### Windows
+
+Install [Visual Studio](https://visualstudio.microsoft.com/downloads/) with C++ development support.
+Install [Qt5](https://www.qt.io/download-thank-you)
+Install [CMake](https://cmake.org/download/).
+Install [GLEW](http://glew.sourceforge.net/)
+
+Build and run:
+
+Launch CMake, select the source and build folder and press configure.
+Choose the installation paths for Qt5 and GLEW.
+Generate a visual studio solution.
+Use visual studio to build and run.
+
+
+Note: If the target machine does not have a graphics card available a software renderer can be used such as Mesa 3D.
 
 ### Using the application
 
@@ -36,13 +62,10 @@ These are previewed in the above GIF.
 
 2D controls:
 * W, A, S, D / Drag mouse with left click to move camera.
-* Mouse scroll to zoom.
 
 3D controls:
 * W, A, S, D, space, control to move camera.
 * Mouse with left click drag to look around.
-
-Use shift and control to speed up or slow down the camera movement speed.
 
 ### Acknowledgements
 

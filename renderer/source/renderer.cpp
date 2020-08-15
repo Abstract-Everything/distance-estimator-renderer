@@ -7,52 +7,61 @@
 
 #include <iostream>
 
-namespace
-{
-  std::unique_ptr<renderer::Shader> shader = nullptr;
-}
-
 namespace renderer
 {
 
-Renderer::Renderer (std::filesystem::path const &glsl_path)
+Renderer::Renderer ()
 {
-  gl::init ();
-  io::init (glsl_path);
-  shader = std::make_unique <renderer::Shader> ();
+  shader = new Shader();
 }
 
-std::vector <std::unique_ptr <Uniform>> Renderer::set_shader (std::filesystem::path const &shader_path)
+Renderer::~Renderer ()
 {
-  return shader->change_shader (io::get_glsl_path() / shader_path);
+    delete shader;
 }
 
-std::vector <std::filesystem::path> Renderer::get_shaders ()
+void Renderer::initialise ()
+{
+  gl::init();
+  shader->initialise_vertex_data();
+}
+
+std::vector <std::filesystem::path> Renderer::get_shaders
+(
+  std::filesystem::path const &include_path,
+  std::vector<std::filesystem::path> const &paths
+)
 {
   std::vector <std::filesystem::path> shaders;
-  auto glsl_paths = { io::get_glsl_path() / "2d" / "signed_distance_functions",
-                      io::get_glsl_path() / "3d" / "signed_distance_functions"};
-  for (io::file_query <std::filesystem::path> const &path :
-       io::load_recursive (glsl_paths, "frag"))
+  for (io::file_query <std::filesystem::path> const &file :
+       io::load_recursive (paths, "frag"))
   {
-    if (!path.exists)
+    if (!file.exists)
     {
-      std::cerr << path.error;
+      std::cerr << file.error;
       continue;
     }
     
-    preprocessor::Parser parser (path.contents);
+    preprocessor::Parser parser (include_path, file.contents);
     if (parser.is_valid())
-      shaders.push_back (path.contents);
+      shaders.push_back (file.contents);
     else
       std::cerr << parser.get_errors()[0];
   }
   return shaders;
 }
 
-void Renderer::set_uniform (Uniform const &uniform_data)
+std::vector <std::unique_ptr <Uniform>> Renderer::set_shader
+(
+    std::filesystem::path const& include_path,
+    std::filesystem::path const& shader_path)
 {
-  shader->set_uniform (uniform_data);
+  return shader->change_shader (include_path, shader_path);
+}
+
+void Renderer::set_uniform (Uniform const &uniform)
+{
+  shader->set_uniform(uniform);
 }
 
 void Renderer::render()

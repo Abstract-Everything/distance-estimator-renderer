@@ -5,18 +5,24 @@
 namespace renderer::preprocessor
 {
 
-Parser::Parser(std::filesystem::path const &path) : Parser (path, true)
+Parser::Parser(
+  std::filesystem::path const &include_search_path,
+  std::filesystem::path const &path
+)
+    : Parser (include_search_path, path, true)
 { } 
 
 Parser::Parser (
+  std::filesystem::path const& include_search_path,
   std::filesystem::path const &p_path,
   bool is_implementation,
   std::vector <std::filesystem::path> const &p_included_files,
   std::map<std::string, std::unique_ptr <Variable>> const &p_uniforms,
   std::map<std::string, std::vector <std::unique_ptr <Variable>>> const &p_struct_types
-) :
-  path (p_path),
-  included_files (p_included_files)
+)
+    : include_search_path(include_search_path)
+    , path (p_path)
+    , included_files (p_included_files)
 {
   for (auto const &[key, value] : p_uniforms)
     uniforms[key] = value->clone();
@@ -249,7 +255,8 @@ bool Parser::parse_value ()
 template <>
 int Parser::parse_value ()
 {
-  return find_number (false) * std::stoi (iterator->string);
+  int negative = find_number(false);
+  return negative * std::stoi (iterator->string);
 }
 
 template <>
@@ -262,13 +269,15 @@ unsigned int Parser::parse_value ()
 template <>
 float Parser::parse_value ()
 {
-  return find_number (true) * std::stof (iterator->string);
+  int negative = find_number(true);
+  return negative * std::stof (iterator->string);
 }
 
 template <>
 double Parser::parse_value ()
 {
-  return find_number (true) * std::stod (iterator->string);
+  int negative = find_number(true);
+  return negative * std::stod (iterator->string);
 }
 
 int Parser::find_number (bool is_float)
@@ -293,14 +302,14 @@ void Parser::include_file ()
 {
   if (!expect_token (Token_Type::String, "#include should be followed by a file path.")) return;
 
-  std::filesystem::path include_path = io::get_glsl_path() / iterator->string;
+  std::filesystem::path include_path = include_search_path / iterator->string;
   if (!include_path.has_filename())
     register_error ("#include path has no filename.");
 
   if (std::find (included_files.begin(), included_files.end(), include_path) == included_files.end())
   {
     included_files.push_back (include_path);
-    Parser file_parser (include_path, false, included_files, uniforms, struct_types);
+    Parser file_parser (include_search_path, include_path, false, included_files, uniforms, struct_types);
 
     included_files = file_parser.included_files;
     uniforms = std::move (file_parser.uniforms);
@@ -325,11 +334,11 @@ void Parser::include_vertex_shader()
 
   if (!expect_token (Token_Type::String, "#vertex_shader should be followed by a file path.")) return;
 
-  std::filesystem::path vertex_shader_path = io::get_glsl_path() / iterator->string;
+  std::filesystem::path vertex_shader_path = include_search_path / iterator->string;
   if (!is_vertex_shader(vertex_shader_path))
     register_error ("#vertex_shader path does not point to a vertex shader.");
 
-  Parser vertex_parser (vertex_shader_path, true);
+  Parser vertex_parser (include_search_path, vertex_shader_path, true);
   vertex_shader_code = vertex_parser.vertex_shader_code;
   uniforms.insert (
       std::make_move_iterator (vertex_parser.uniforms.begin()),

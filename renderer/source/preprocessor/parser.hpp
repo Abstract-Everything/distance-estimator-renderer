@@ -85,6 +85,7 @@ class Parser
 {
 private:
   const std::filesystem::path path;
+  const std::filesystem::path include_search_path;
 
   bool valid = true;
   std::vector <std::string> errors;
@@ -125,11 +126,13 @@ private:
   bool is_fragment_shader(std::filesystem::path const &path) const;
 
   Parser (
-    std::filesystem::path const &path,
+    std::filesystem::path const& include_search_path,
+    std::filesystem::path const& path,
     bool is_implementation,
     std::vector <std::filesystem::path> const &included_files = {},
     std::map<std::string, std::unique_ptr <Variable>> const &p_uniforms = {},
-    std::map<std::string, std::vector <std::unique_ptr <Variable>>> const &p_struct_types = {});
+    std::map<std::string, std::vector <std::unique_ptr <Variable>>> const &p_struct_types = {}
+  );
 
 public:
   std::string get_shader_code() const;
@@ -139,7 +142,11 @@ public:
   bool is_valid () const;
   std::vector <std::string> get_errors () const;
   std::vector <std::unique_ptr <Uniform>> get_uniforms () const;
-  Parser (std::filesystem::path const &path);
+
+  Parser (
+    std::filesystem::path const& include_search_path,
+    std::filesystem::path const &path
+  );
 };
 
 }

@@ -9,16 +9,35 @@
 namespace renderer
 {
 
+class Shader;
+
 class Renderer
 {
 public:
-  Renderer (std::filesystem::path const &glsl_path);
+  Renderer ();
+  ~Renderer ();
 
-  std::vector <std::filesystem::path> get_shaders ();
-  std::vector <std::unique_ptr <Uniform>> set_shader (std::filesystem::path const &shader_path);
+  void initialise();
+
+  std::vector <std::filesystem::path> get_shaders (
+    std::filesystem::path const& include_path,
+    std::vector<std::filesystem::path> const& paths
+  );
+
+  std::vector <std::unique_ptr <Uniform>> set_shader
+  (
+      std::filesystem::path const& include_path,
+      std::filesystem::path const& shader_path
+  );
+
   void set_uniform (Uniform const &uniform_data);
 
   void render();
+
+private:
+    // Using a pointer in order to not include shader.hpp which would need to
+    //  to be accessible outside of the library.
+    renderer::Shader* shader = nullptr;
 };
 
 }

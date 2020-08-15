@@ -15,7 +15,7 @@ enum class Check_Error_Type
   Program
 };
 
-void check_errors(GLuint check_location, Check_Error_Type type)
+bool check_errors(GLuint check_location, Check_Error_Type type)
 {
   auto check_error = [check_location](
       GLenum status,
@@ -40,7 +40,13 @@ void check_errors(GLuint check_location, Check_Error_Type type)
   auto [success, message] = type == Check_Error_Type::Shader ?
     check_error (GL_COMPILE_STATUS, "Error shader compilation failed:", glGetShaderiv,  glGetShaderInfoLog) :
     check_error (GL_LINK_STATUS,    "Error linking shader program:"   , glGetProgramiv, glGetProgramInfoLog);
-  if (!success) std::cerr << message;
+
+  if (!success)
+  {
+    std::cerr << message;
+  }
+
+  return success;
 }
 
 const bool show_low_severity = false;
@@ -107,32 +113,47 @@ void init ()
   }
 }
 
-GLuint compile_shader (std::string const &shader_source, Shader_Type shader_type)
+std::pair<bool, GLuint> compile_shader (std::string const &shader_source, Shader_Type shader_type)
 {
   const char* source = shader_source.c_str();
   GLuint shader = glCreateShader(static_cast<GLuint> (shader_type));
   glShaderSource(shader, 1, &source, NULL);
   glCompileShader(shader);
-  check_errors(shader, Check_Error_Type::Shader);
-  return shader;
+  bool success = check_errors(shader, Check_Error_Type::Shader);
+  return { success, shader };
 }
 
-GLuint create_program(std::vector<unsigned int> const &shaders)
+std::pair<bool, GLuint> create_program(
+  const std::string& vertex_shader_code,
+  const std::string& fragment_shader_code
+)
 {
   GLuint program_id = glCreateProgram();
-  for (auto const &shader : shaders)
-    glAttachShader(program_id, shader);
+  auto [vertex_success, vertex_shader] = compile_shader(vertex_shader_code, Shader_Type::Vertex);
+  if (!vertex_success)
+  {
+    return { false, 0 };
+  }
+
+  auto [fragment_success, fragment_shader] = compile_shader(fragment_shader_code, Shader_Type::Fragment);
+  if (!fragment_success)
+  {
+    return { false, 0 };
+  }
+
+  glAttachShader(program_id, vertex_shader);
+  glAttachShader(program_id, fragment_shader);
 
   glLinkProgram(program_id);
-  check_errors(program_id, Check_Error_Type::Program);
+  bool program_success = check_errors(program_id, Check_Error_Type::Program);
 
-  for (auto const& shader : shaders)
+  for (auto const& shader : { vertex_shader, fragment_shader })
   {
     glDetachShader (program_id, shader);
     glDeleteShader (shader);
   }
 
-  return program_id;
+  return { program_success, program_id };
 }
 
 void set_uniform_values (GLuint location, std::vector <int> const &values)

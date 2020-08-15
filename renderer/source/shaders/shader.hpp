@@ -14,20 +14,33 @@ namespace renderer {
 class Shader
 {
 public:
+  void initialise_vertex_data();
+
   void draw();
   void set_uniform (Uniform const &uniform);
 
-  Shader ();
-  std::vector <std::unique_ptr <Uniform>> change_shader (std::filesystem::path const &shader_path);
+  std::vector <std::unique_ptr <Uniform>> change_shader
+  (
+      std::filesystem::path const& include_path,
+      std::filesystem::path const& shader_path
+  );
 
 private:
   bool valid = false;
+  bool new_shader = false;
   std::vector <std::string> errors;
 
-  GLuint program_id;
-  GLuint vertex_array;
+  std::string vertex_shader_code;
+  std::string fragment_shader_code;
 
-  void create_vertex_data();
+  GLuint program_id = 0;
+  GLuint vertex_array = 0;
+
+  void print_shaders
+  (
+  	std::string const &vertex_shader,
+  	std::string const &fragment_shader
+  );
 };
 
 }

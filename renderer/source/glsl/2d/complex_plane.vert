@@ -13,9 +13,7 @@ void main()
 {
   float aspect = float(globals.resolution.y) / float (globals.resolution.x);
   float screen_width = float (globals.resolution.x) / 2048.0f;
-  float zoom = 1.0f - abs (camera.zoom);
-  zoom = camera.zoom > 0.0f ? zoom : 1.0f / zoom;
-  float frame_width = max (screen_width * zoom, 0.000001f);
+  float frame_width = max (screen_width * camera.zoom, 0.000001f);
 
   float width = v_position.x * frame_width;
   float height = v_position.y * frame_width * aspect;

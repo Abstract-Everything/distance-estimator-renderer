@@ -1,13 +1,13 @@
 import renderer.viewport 1.0
+import renderer.camera 1.0
 
 import QtQuick 2.2
 
-Viewport_Class
+Viewport_
 {
-  MouseArea
+  Camera
   {
-    id: mouse_area
-    objectName: "mouse_area"
+    id: camera
     anchors.fill: parent
   }
 }

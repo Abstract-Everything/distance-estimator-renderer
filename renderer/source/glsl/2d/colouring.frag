@@ -1,11 +1,6 @@
 #requires_implementation
 #include "structures.glsl"
 
-struct Colouring
-{
-  vec3 colour = (0.25f, 0.5f, 0.75f);
-};
-
 uniform Colouring colouring;
 
 uint get_iterations ();
@@ -15,7 +10,7 @@ float get_step ();
 vec3 colour (float distance, float hit_distance)
 {
   float co =  (float(get_iterations ()) + 1.0 - log2( 0.5 * log2 (get_step ()))) / float (get_max_iterations ());
-  vec3 colour = vec3 (6.2831 * sqrt (co)) + abs (colouring.colour - vec3 (globals.time));
+  vec3 colour = vec3 (6.2831 * sqrt (co)) + abs (colouring.background_colour - vec3 (globals.time));
   return 0.5f * vec3(
       abs (cos(colour.x)),
       abs (cos(colour.y)),

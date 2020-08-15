@@ -6,7 +6,4 @@ class Main_Window : public QQuickWindow
 {
 public:
   Main_Window (QWindow *parent = nullptr);
-
-private:
-  void init ();
 };

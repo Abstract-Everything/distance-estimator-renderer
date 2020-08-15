@@ -5,24 +5,12 @@ namespace fs = std::filesystem;
 namespace
 {
 
-fs::path glsl_path;
-
 std::string form_error_message (fs::path const &path)
 {
   std::string filename = path.filename().string();
   return filename + " was not found. Tried searching at: " + path.string();
 }
 
-}
-
-void io::init (fs::path const &path)
-{
-  glsl_path = path;
-}
-
-fs::path io::get_glsl_path()
-{
-  return glsl_path;
 }
 
 io::file_query <std::string> io::load_file (fs::path const &filepath)

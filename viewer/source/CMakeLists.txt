@@ -5,11 +5,14 @@ qt5_add_resources (QT_RESOURCES qml.qrc)
 
 add_executable (viewer
   "${CMAKE_CURRENT_LIST_DIR}/main"
-  "${CMAKE_CURRENT_LIST_DIR}/main_window"
-  "${CMAKE_CURRENT_LIST_DIR}/viewport"
-  "${CMAKE_CURRENT_LIST_DIR}/inspector"
-  "${CMAKE_CURRENT_LIST_DIR}/camera"
-  "${CMAKE_CURRENT_LIST_DIR}/uniform"
+  
+  "${CMAKE_CURRENT_LIST_DIR}/Wrapper/uniform"
+  "${CMAKE_CURRENT_LIST_DIR}/Wrapper/renderer"
+  
+  "${CMAKE_CURRENT_LIST_DIR}/UI/main_window"
+  "${CMAKE_CURRENT_LIST_DIR}/UI/viewport"
+  "${CMAKE_CURRENT_LIST_DIR}/UI/inspector"
+  "${CMAKE_CURRENT_LIST_DIR}/UI/camera"
 
   ${QT_RESOURCES}
 )
@@ -18,6 +21,8 @@ target_include_directories (viewer PRIVATE
   ${QtQml_INCLUDE_DIRS}
 
   "${CMAKE_CURRENT_LIST_DIR}/"
+  "${CMAKE_CURRENT_LIST_DIR}/Wrapper"
+  "${CMAKE_CURRENT_LIST_DIR}/UI"
 )
 
 set_target_properties (viewer

@@ -18,8 +18,13 @@ enum class Shader_Type {
 
 void init ();
 
-GLuint compile_shader (std::string const &shader_source, Shader_Type shader_type);
-GLuint create_program(std::vector<unsigned int> const &shaders);
+std::pair<bool, GLuint> compile_shader (std::string const &shader_source, Shader_Type shader_type);
+
+std::pair<bool, GLuint> create_program(
+    const std::string& vertex_shader_code,
+    const std::string& fragment_shader_code
+);
+
 void set_uniform (GLuint program_id, renderer::Uniform const &uniform);
 
 }
