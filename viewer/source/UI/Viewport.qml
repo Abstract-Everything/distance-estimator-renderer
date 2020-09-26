@@ -5,9 +5,9 @@ import QtQuick 2.2
 
 Viewport_
 {
-  Camera
-  {
-    id: camera
-    anchors.fill: parent
-  }
+	Camera
+	{
+		id: camera
+		anchors.fill: parent
+	}
 }

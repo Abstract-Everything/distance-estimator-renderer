@@ -1,9 +1,9 @@
 #pragma once
 
 #include <cassert>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace renderer
 {
@@ -11,34 +11,37 @@ namespace renderer
 class Uniform
 {
 public:
-  virtual std::string get_name () const = 0;
-  virtual ~Uniform () {};
+	virtual ~Uniform() = default;
+
+	virtual std::string get_name() const = 0;
 
 protected:
-  std::string name = "";
+	Uniform (std::string const& p_name) : name (p_name) {}
+
+	std::string name;
 };
 
 template <typename T>
 class Typed_Uniform : public Uniform
 {
 public:
-  std::string get_name () const override
-  {
-    return this->name;
-  }
+	std::string get_name() const override
+	{
+		return this->name;
+	}
 
-  std::vector<T> get_values () const
-  {
-    return values;
-  }
+	std::vector<T> get_values() const
+	{
+		return values;
+	}
 
-  Typed_Uniform (std::string const &p_name, std::vector <T> const &p_values)
-  {
-    name = p_name;
-    values = p_values;
-  }
+	Typed_Uniform (std::string const& p_name, std::vector<T> const& p_values)
+		: Uniform (p_name)
+		, values (p_values)
+	{
+	}
 
 private:
-  std::vector<T> values {};
+	std::vector<T> values{};
 };
-}
+} // namespace renderer

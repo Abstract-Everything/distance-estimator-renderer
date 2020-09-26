@@ -8,35 +8,34 @@ import QtQuick.Layouts 1.0
 
 Main_Window_
 {
-  id: main_window
-  visible: true
+	id: main_window
+	visible: true
 
-  title: qsTr ("Fractal renderer")
+	title: qsTr ("Fractal renderer")
 
-  minimumWidth: 640
-  minimumHeight: 480
+	minimumWidth: 640
+	minimumHeight: 480
 
-  width: 640
-  height: 480
-  
-  SplitView
-  {
-	anchors.fill: parent
-	orientation: Qt.Horizontal
-	
-    Viewport
-    {
-	  id: viewport
-	  
-	  Layout.fillWidth: true
-	  Layout.minimumWidth: 160
-    }
-	
-	Inspector
+	width: 640
+	height: 480
+
+	SplitView
 	{
-	  id: inspector
-	  
-	  Layout.minimumWidth: 160
+		anchors.fill: parent
+		orientation: Qt.Horizontal
+
+		Viewport
+		{
+			id: viewport
+
+			Layout.fillWidth: true
+			Layout.minimumWidth: 160
+		}
+
+		Inspector
+		{
+			id: inspector
+			Layout.minimumWidth: 160
+		}
 	}
-  }
 }

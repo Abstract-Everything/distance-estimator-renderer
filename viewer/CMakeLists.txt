@@ -7,6 +7,5 @@ project (
 )
 
 find_package (Qt5 COMPONENTS Qml Quick REQUIRED)
-find_package (OpenGL REQUIRED)
 
 add_subdirectory (source)

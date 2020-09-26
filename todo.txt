@@ -35,6 +35,13 @@ Project:
   Visual studio does not have the filters in project window.
 
 Code:
+  Set clang-format to:
+    break before closing ')' if it does not fit in a single line.
+
+  Remove single line statements (if, for, while).
+  Add newline after "break;" in switch statements;
+  Use = default for empty destructors
+
   Refactor formatting to 4 tabs and remove spacing after functions.
   Refactor lexer and parser for better error handling.
   Move GLSL struct default values to variable declaration instead of struct definition.

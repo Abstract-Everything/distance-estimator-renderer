@@ -1,4 +1,4 @@
-# A distance estimation renderer
+#A distance estimation renderer
 
 A renderer which uses distance estimation in order to draw shapes and fractals. This is a demonstration of the Julia set:
 
@@ -48,7 +48,6 @@ Launch CMake, select the source and build folder and press configure.
 Choose the installation paths for Qt5 and GLEW.
 Generate a visual studio solution.
 Use visual studio to build and run.
-
 
 Note: If the target machine does not have a graphics card available a software renderer can be used such as Mesa 3D.
 

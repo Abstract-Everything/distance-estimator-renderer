@@ -1,72 +1,69 @@
 #include "renderer.hpp"
 
+#include "file_loader.hpp"
+#include "gl_interface.hpp"
 #include "parser.hpp"
 #include "shader.hpp"
-#include "gl_interface.hpp"
-#include "file_loader.hpp"
 
 #include <iostream>
 
 namespace renderer
 {
 
-Renderer::Renderer ()
+Renderer::Renderer()
 {
-  shader = new Shader();
+	shader = new Shader();
 }
 
-Renderer::~Renderer ()
+Renderer::~Renderer()
 {
-    delete shader;
+	delete shader;
 }
 
-void Renderer::initialise ()
+void Renderer::initialise()
 {
-  gl::init();
-  shader->initialise_vertex_data();
+	gl::init();
+	shader->initialise_vertex_data();
 }
 
-std::vector <std::filesystem::path> Renderer::get_shaders
-(
-  std::filesystem::path const &include_path,
-  std::vector<std::filesystem::path> const &paths
-)
+std::vector<std::filesystem::path> Renderer::get_shaders (
+	std::filesystem::path const&              include_path,
+	std::vector<std::filesystem::path> const& paths)
 {
-  std::vector <std::filesystem::path> shaders;
-  for (io::file_query <std::filesystem::path> const &file :
-       io::load_recursive (paths, "frag"))
-  {
-    if (!file.exists)
-    {
-      std::cerr << file.error;
-      continue;
-    }
-    
-    preprocessor::Parser parser (include_path, file.contents);
-    if (parser.is_valid())
-      shaders.push_back (file.contents);
-    else
-      std::cerr << parser.get_errors()[0];
-  }
-  return shaders;
+	std::vector<std::filesystem::path> shaders;
+	for (io::file_query<std::filesystem::path> const& file :
+		 io::load_recursive (paths, "frag"))
+	{
+		if (!file.exists)
+		{
+			std::cerr << file.error;
+			continue;
+		}
+
+		preprocessor::Parser parser (include_path, file.contents);
+		if (parser.is_valid())
+			shaders.push_back (file.contents);
+		else
+			std::cerr << parser.get_errors()[0];
+	}
+	return shaders;
 }
 
-std::vector <std::unique_ptr <Uniform>> Renderer::set_shader
-(
-    std::filesystem::path const& include_path,
-    std::filesystem::path const& shader_path)
+std::vector<std::unique_ptr<Uniform>> Renderer::set_shader (
+	std::filesystem::path const& include_path,
+	std::filesystem::path const& shader_path)
 {
-  return shader->change_shader (include_path, shader_path);
+	return shader->change_shader (include_path, shader_path);
 }
 
-void Renderer::set_uniform (Uniform const &uniform)
+void Renderer::set_uniform (Uniform const& uniform)
 {
-  shader->set_uniform(uniform);
+	shader->set_uniform (uniform);
 }
 
 void Renderer::render()
 {
-  shader->draw();
+	shader->draw();
 }
 
-}
+} // namespace renderer

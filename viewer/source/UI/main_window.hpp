@@ -5,5 +5,5 @@
 class Main_Window : public QQuickWindow
 {
 public:
-  Main_Window (QWindow *parent = nullptr);
+	Main_Window (QWindow* parent = nullptr);
 };
