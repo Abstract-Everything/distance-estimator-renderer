@@ -20,8 +20,8 @@ Parser::Parser (
 	std::map<std::string, std::unique_ptr<Variable>> const& p_uniforms,
 	std::map<std::string, std::vector<std::unique_ptr<Variable>>> const&
 		p_struct_types)
-	: include_search_path (include_search_path)
-	, path (p_path)
+	: path (p_path)
+	, include_search_path (include_search_path)
 	, included_files (p_included_files)
 {
 	for (auto const& [key, value] : p_uniforms)
@@ -40,9 +40,11 @@ Parser::Parser (
 	process (path, is_implementation);
 }
 
-void Parser::process (std::filesystem::path const& path, bool is_implementation)
+void Parser::process (
+	std::filesystem::path const& p_path,
+	bool                         is_implementation)
 {
-	Lexer lexer (path);
+	Lexer lexer (p_path);
 	if (!lexer.is_valid())
 	{
 		valid  = false;
@@ -60,9 +62,9 @@ void Parser::process (std::filesystem::path const& path, bool is_implementation)
 		iterator++;
 	}
 
-	if (is_vertex_shader (path))
+	if (is_vertex_shader (p_path))
 		vertex_shader_code = glsl_shader_code;
-	else if (is_fragment_shader (path))
+	else if (is_fragment_shader (p_path))
 		fragment_shader_code = glsl_shader_code;
 }
 
@@ -150,11 +152,12 @@ Parser::find_next_token (Token_Type const type) const
 }
 
 std::string
-Parser::skip_whitespace (std::vector<Token>::const_iterator& iterator) const
+Parser::skip_whitespace (std::vector<Token>::const_iterator& p_iterator) const
 {
 	std::string space;
-	while (iterator != end_iterator && iterator->type == Token_Type::Whitespace)
-		space += (iterator++)->string;
+	while (p_iterator != end_iterator
+		   && p_iterator->type == Token_Type::Whitespace)
+		space += (p_iterator++)->string;
 	return space;
 }
 
@@ -539,16 +542,16 @@ void Parser::register_error (std::string const& message)
 		+ std::to_string (iterator->line_number) + '\n' + message + '\n');
 }
 
-bool Parser::is_vertex_shader (std::filesystem::path const& path) const
+bool Parser::is_vertex_shader (std::filesystem::path const& p_path) const
 {
-	return path.has_extension()
-		   && path.extension().string().find ("vert") != std::string::npos;
+	return p_path.has_extension()
+		   && p_path.extension().string().find ("vert") != std::string::npos;
 }
 
-bool Parser::is_fragment_shader (std::filesystem::path const& path) const
+bool Parser::is_fragment_shader (std::filesystem::path const& p_path) const
 {
-	return path.has_extension()
-		   && path.extension().string().find ("frag") != std::string::npos;
+	return p_path.has_extension()
+		   && p_path.extension().string().find ("frag") != std::string::npos;
 }
 
 std::string Parser::get_shader_code() const

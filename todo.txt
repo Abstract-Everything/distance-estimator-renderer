@@ -31,8 +31,14 @@ Rendering:
 Enhancements:
 Project:
   Use issues instead of this document.
-  CMake should update resources/glsl automatically.
-  Visual studio does not have the filters in project window.
+  CMake:
+    Viewer should compile with Werror without external code errors.
+    resources/glsl should update automatically.
+    Visual studio does not have the filters in project window.
+
+User Experience:
+  Improve input fields for floats and doubles.
+  Set minimum inspector width in order to avoid hiding inputs.
 
 Code:
   Set clang-format to:

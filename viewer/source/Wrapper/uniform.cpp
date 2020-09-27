@@ -2,17 +2,24 @@
 
 #include <QDebug>
 
-Uniform::Uniform (QString const& name, QList<QVariant> const& values)
+Uniform::Uniform (QString const& name, Type type, QList<QVariant> const& values)
 	: m_name (name)
-	, m_values (values)
+	, m_type (type)
 {
+	assert (type != Type::Invalid && "Invalid uniform initailization");
 	assert (values.size() > 0);
-	for (size_t i = 1; i < values.size(); ++i)
+	for (int i = 0; i < values.size(); ++i)
 	{
-		assert (values[i - 1].type() == values[i].type());
-	}
+		switch (type)
+		{
+		case Type::Int:    m_values.push_back (values[i].toInt());    break;
+		case Type::UInt:   m_values.push_back (values[i].toUInt());   break;
+		case Type::Float:  m_values.push_back (values[i].toFloat());  break;
+		case Type::Double: m_values.push_back (values[i].toDouble()); break;
 
-	m_type = static_cast<QMetaType::Type> (values[0].type());
+		case Type::Invalid: assert(false); break;
+		}
+	}
 }
 
 Uniform::Uniform (renderer::Uniform const& uniform)
@@ -22,29 +29,34 @@ Uniform::Uniform (renderer::Uniform const& uniform)
 	if (typeid (uniform).hash_code()
 		== typeid (renderer::Typed_Uniform<int>).hash_code())
 	{
-		m_type = QMetaType::Type::Int;
+		m_type = Type::Int;
 		fill_values<int> (uniform);
 	}
 	else if (
 		typeid (uniform).hash_code()
 		== typeid (renderer::Typed_Uniform<unsigned int>).hash_code())
 	{
-		m_type = QMetaType::Type::UInt;
+		m_type = Type::UInt;
 		fill_values<unsigned int> (uniform);
 	}
 	else if (
 		typeid (uniform).hash_code()
 		== typeid (renderer::Typed_Uniform<float>).hash_code())
 	{
-		m_type = QMetaType::Type::Float;
+		m_type = Type::Float;
 		fill_values<float> (uniform);
 	}
 	else if (
 		typeid (uniform).hash_code()
 		== typeid (renderer::Typed_Uniform<double>).hash_code())
 	{
-		m_type = QMetaType::Type::Double;
+		m_type = Type::Double;
 		fill_values<double> (uniform);
+	}
+	else
+	{
+		m_type = Type::Invalid;
+		assert (false && "Uniform has an unsupported type.");
 	}
 }
 
@@ -52,38 +64,35 @@ Uniform::operator std::unique_ptr<renderer::Uniform>() const
 {
 	std::string uniform_name = m_name.toStdString();
 
-	if (m_type == QMetaType::Type::Int)
+	switch (m_type)
 	{
+	case Type::Int:
 		return create_typed_uniform<int> (
 			uniform_name,
 			[] (QVariant const& value) { return value.toInt(); });
-	}
-	else if (m_type == QMetaType::Type::UInt)
-	{
+
+	case Type::UInt:
 		return create_typed_uniform<unsigned int> (
 			uniform_name,
 			[] (QVariant const& value) { return value.toUInt(); });
-	}
-	else if (m_type == QMetaType::Type::Float)
-	{
+
+	case Type::Float:
 		return create_typed_uniform<float> (
 			uniform_name,
 			[] (QVariant const& value) { return value.toFloat(); });
-	}
-	else if (m_type == QMetaType::Type::Double)
-	{
+
+	case Type::Double:
 		return create_typed_uniform<double> (
 			uniform_name,
 			[] (QVariant const& value) { return value.toDouble(); });
-	}
-	else
-	{
+
+	case Type::Invalid:
 		assert (
 			false
-			&& "Uniforms should only be one of: bool, int, uint, float, "
-			   "double\n");
+			&& "Uniforms should only be one of: int, uint, float, double\n");
 		return nullptr;
 	}
+	return nullptr;
 }
 
 QString Uniform::name() const
@@ -91,12 +100,12 @@ QString Uniform::name() const
 	return m_name;
 }
 
-QMetaType::Type Uniform::type() const
+Uniform::Type Uniform::type() const
 {
 	return m_type;
 }
 
-size_t Uniform::size() const
+int Uniform::size() const
 {
 	return m_values.size();
 }
@@ -105,24 +114,45 @@ void Uniform::update (Uniform const& uniform)
 {
 	for (int i = 0; i < uniform.size(); ++i)
 	{
-		set_value (uniform.m_values[i], i);
+		set_value (uniform, i);
 	}
 }
 
-QVariant Uniform::value (unsigned int index) const
+QVariant Uniform::value (int index) const
 {
 	return m_values[index];
 }
 
-void Uniform::set_value (QVariant const& value, unsigned int index)
+void Uniform::set_value (Uniform const& uniform, unsigned int index)
 {
-	switch (value.type())
-	{
-	case QMetaType::Type::Int:    m_values[index] = value.toInt();    break;
-	case QMetaType::Type::UInt:   m_values[index] = value.toUInt();   break;
-	case QMetaType::Type::Float:  m_values[index] = value.toFloat();  break;
-	case QMetaType::Type::Double: m_values[index] = value.toDouble(); break;
-	}
+	assert (
+		uniform.type() == type()
+		&& "Setting uniform value with a different type.");
+	m_values[index] = uniform.m_values[index];
+}
+
+void Uniform::set_value (int value, unsigned int index)
+{
+	assert (type() == Type::Int);
+	m_values[index] = value;
+}
+
+void Uniform::set_value (unsigned int value, unsigned int index)
+{
+	assert (type() == Type::UInt);
+	m_values[index] = value;
+}
+
+void Uniform::set_value (float value, unsigned int index)
+{
+	assert (type() == Type::Float);
+	m_values[index] = value;
+}
+
+void Uniform::set_value (double value, unsigned int index)
+{
+	assert (type() == Type::Double);
+	m_values[index] = value;
 }
 
 bool Uniform::is_type_compatabile (QVariant const& value)
@@ -156,7 +186,7 @@ std::unique_ptr<renderer::Typed_Uniform<T>> Uniform::create_typed_uniform (
 	std::function<T (QVariant)> const& convert) const
 {
 	std::vector<T> uniform_values;
-	for (const QVariant value : m_values)
+	for (const QVariant& value : m_values)
 	{
 		uniform_values.push_back (convert (value));
 	}

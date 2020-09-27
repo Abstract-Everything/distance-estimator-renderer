@@ -48,7 +48,8 @@ std::vector<std::unique_ptr<Uniform>> Shader::change_shader (
 	}
 
 	preprocessor::Parser parser (include_path, shader_path);
-	if (!(valid = parser.is_valid()))
+	valid = parser.is_valid();
+	if (!valid)
 	{
 		print_shaders (
 			parser.get_vertex_shader_code(),

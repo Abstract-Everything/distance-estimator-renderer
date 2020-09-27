@@ -42,8 +42,7 @@ void Lexer::tokenize (std::string const& line)
 	end_iterator = line.end();
 	while (iterator != line.end())
 	{
-		Character_Type type = determine_character_type (iterator);
-		switch (type)
+		switch (determine_character_type (iterator))
 		{
 		case Character_Type::Directive:
 		{
@@ -119,25 +118,25 @@ void Lexer::tokenize (std::string const& line)
 }
 
 Character_Type Lexer::determine_character_type (
-	std::string::const_iterator const& iterator) const
+	std::string::const_iterator const& p_iterator) const
 {
-	if (*iterator == '#')
+	if (*p_iterator == '#')
 		return Character_Type::Directive;
 
-	if (*iterator >= '0' && *iterator <= '9')
+	if (*p_iterator >= '0' && *p_iterator <= '9')
 		return Character_Type::Number;
 
-	if ((*iterator >= 'a' && *iterator <= 'z')
-		|| (*iterator >= 'A' && *iterator <= 'Z') || *iterator == '_')
+	if ((*p_iterator >= 'a' && *p_iterator <= 'z')
+		|| (*p_iterator >= 'A' && *p_iterator <= 'Z') || *p_iterator == '_')
 		return Character_Type::Keyword;
 
-	if (*iterator == ' ' || *iterator == '\t' || *iterator == '\n')
+	if (*p_iterator == ' ' || *p_iterator == '\t' || *p_iterator == '\n')
 		return Character_Type::Whitespace;
 
-	if (*iterator == '.')
+	if (*p_iterator == '.')
 		return Character_Type::Dot;
 
-	if (*iterator == '"')
+	if (*p_iterator == '"')
 		return Character_Type::String;
 
 	return Character_Type::Punctuation;

@@ -35,11 +35,22 @@ target_compile_definitions (viewer PRIVATE
 	${${Qt5Quick_DEFINITIONS}}
 )
 
-if (<$CXX_COMPILER_ID:"GNU, Clang">)
+if (MSVC)
+	target_compile_options (viewer PRIVATE
+		/W4
+
+		$<$<CONFIG:RELEASE>:
+			/O2
+		>
+
+		$<$<CONFIG:DEBUG>:
+			/Zi
+		>
+	)
+else()
 	target_compile_options (viewer PRIVATE
 		-Wall
 		-Wextra
-		-Werror
 		-fstrict-aliasing
 
 		$<$<CONFIG:RELEASE>:
@@ -52,25 +63,6 @@ if (<$CXX_COMPILER_ID:"GNU, Clang">)
 			$<$<CXX_COMPILER_ID:Clang>:
 				-D_GLIBCXX_DEBUG
 			>
-		>
-	)
-
-	target_link_libraries (viewer
-		-lstdc++
-		fs
-	)
-
-elseif (<$CXX_COMPILER_ID : "MSVC">)
-	target_compile_options (viewer PRIVATE
-		/W4
-		/WX
-
-		$<$<CONFIG:RELEASE>:
-			/O2
-		>
-
-		$<$<CONFIG:DEBUG>:
-			/Zi
 		>
 	)
 endif()

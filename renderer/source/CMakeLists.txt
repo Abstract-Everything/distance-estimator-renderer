@@ -30,7 +30,20 @@ set_target_properties (renderer
 	ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
 )
 
-if (<$CXX_COMPILER_ID:"GNU, Clang">)
+if (MSVC)
+	target_compile_options (renderer PRIVATE
+		/W4
+		/WX
+
+		$<$<CONFIG:RELEASE>:
+			/O2
+		>
+
+		$<$<CONFIG:DEBUG>:
+			/Zi
+		>
+	)
+else()
 	target_compile_options (renderer PRIVATE
 		-Wall
 		-Wextra
@@ -49,19 +62,6 @@ if (<$CXX_COMPILER_ID:"GNU, Clang">)
 		>
 	)
 
-elseif (<$CXX_COMPILER_ID : "MSVC">)
-	target_compile_options (renderer PRIVATE
-		/W4
-		/WX
-
-		$<$<CONFIG:RELEASE>:
-			/O2
-		>
-
-		$<$<CONFIG:DEBUG>:
-			/Zi
-		>
-	)
 endif()
 
 target_compile_definitions (renderer PRIVATE

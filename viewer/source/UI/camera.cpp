@@ -64,12 +64,10 @@ bool Camera::eventFilter (QObject* watched, QEvent* event)
 	case QEvent::HoverEnter:
 		watched->setProperty ("focus", true);
 		return true;
-		break;
 
 	case QEvent::HoverLeave:
 		watched->setProperty ("focus", false);
 		return true;
-		break;
 
 	case QEvent::KeyPress:
 	case QEvent::KeyRelease:
@@ -78,7 +76,6 @@ bool Camera::eventFilter (QObject* watched, QEvent* event)
 		update_move_direction (*key_event);
 		return true;
 	}
-	break;
 
 	case QEvent::MouseButtonPress:
 	case QEvent::MouseMove:
@@ -88,10 +85,10 @@ bool Camera::eventFilter (QObject* watched, QEvent* event)
 		update_pan_direction (*mouse_event);
 		return true;
 	}
-	break;
-	}
 
-	return QObject::eventFilter (watched, event);
+	default:
+		return QObject::eventFilter (watched, event);
+	}
 }
 
 void Camera::update_uniforms()
@@ -120,7 +117,7 @@ void Camera::update_position (float deltaTime)
 	Singletons::renderer.set_uniform (position);
 }
 
-void Camera::update_view (float deltaTime)
+void Camera::update_view (float /* deltaTime */)
 {
 	const QVector2D offset = QVector2D (-1.0f, 1.0f) * pan_direction;
 	if (dimensions == Dimensions::Two)
@@ -227,5 +224,7 @@ void Camera::update_pan_direction (QMouseEvent const& mouse_event)
 		break;
 
 	case QEvent::MouseButtonRelease: pan_direction = {0.0f, 0.0f}; break;
+
+	default: break;
 	}
 }

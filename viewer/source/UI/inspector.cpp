@@ -27,9 +27,7 @@ QStringList Inspector::shaders()
 	int index = shader_names.indexOf ("flat_background");
 	if (index != -1)
 	{
-		QString& first_shader = shader_names[0];
-		shader_names[0]       = shader_names[index];
-		shader_names[index]   = first_shader;
+		std::swap (shader_names[0], shader_names[index]);
 		update_shader (0);
 	}
 
@@ -65,7 +63,28 @@ void Inspector::set_uniform_value (
 	quint32        index)
 {
 	Uniform uniform = Singletons::renderer.get_uniform (name);
-	uniform.set_value (value, index);
+	switch (uniform.type())
+	{
+	case Uniform::Type::Int:
+		uniform.set_value (static_cast<int> (value), index);
+		break;
+
+	case Uniform::Type::UInt:
+		uniform.set_value (static_cast<unsigned int> (value), index);
+		break;
+
+	case Uniform::Type::Float:
+		uniform.set_value (static_cast<float> (value), index);
+		break;
+
+	case Uniform::Type::Double:
+		uniform.set_value (static_cast<double> (value), index);
+		break;
+
+	case Uniform::Type::Invalid:
+		assert (false && "Uniform has Invalid as type.");
+		break;
+	}
 	Singletons::renderer.set_uniform (uniform);
 }
 
@@ -77,7 +96,7 @@ void Inspector::shader_updated()
 void Inspector::uniform_updated (QString const& uniform_name)
 {
 	Uniform const& uniform = Singletons::renderer.get_uniform (uniform_name);
-	for (unsigned int i = 0; i < uniform.size(); ++i)
+	for (int i = 0; i < uniform.size(); ++i)
 	{
 		QObject* object = findChild<QObject*> (create_id (uniform, i));
 		if (object == nullptr)
@@ -86,8 +105,10 @@ void Inspector::uniform_updated (QString const& uniform_name)
 		}
 
 		const size_t decimal_points = get_decimal_points (uniform.type());
-		int          value
-			= convert_value_for_input_field (uniform.value (i), decimal_points);
+		const int    value          = convert_value_for_input_field (
+            uniform.type(),
+            uniform.value (i),
+            decimal_points);
 		object->setProperty ("value", value);
 	}
 }
@@ -111,7 +132,7 @@ QMap<QString, QList<Uniform>> Inspector::group_uniforms()
 QString
 Inspector::create_tab (QString const& tab_name, QList<Uniform> const& uniforms)
 {
-	size_t  max_column = 0;
+	int     max_column = 0;
 	QString uniform_fields;
 	for (int i = 0; i < uniforms.size(); ++i)
 	{
@@ -150,7 +171,7 @@ Inspector::create_tab (QString const& tab_name, QList<Uniform> const& uniforms)
 QString Inspector::create_uniform_source (Uniform const& uniform, size_t row)
 {
 	QString uniform_source;
-	for (size_t i = 0; i < uniform.size(); ++i)
+	for (int i = 0; i < uniform.size(); ++i)
 	{
 		uniform_source.append (create_uniform_field (uniform, i));
 	}
@@ -175,30 +196,38 @@ QString Inspector::create_uniform_source (Uniform const& uniform, size_t row)
 		.arg (uniform_source);
 }
 
-QString Inspector::create_uniform_field (Uniform const& uniform, size_t column)
+QString Inspector::create_uniform_field (Uniform const& uniform, int column)
 {
-	QString source;
-	if (uniform.type() == QMetaType::Type::Int)
+	switch (uniform.type())
 	{
-		source = create_number_input (uniform, column, 0);
-	}
-	else if (uniform.type() == QMetaType::Type::UInt)
-	{
-		source = create_number_input (uniform, column, 0, 0);
-	}
-	else if (
-		uniform.type() == QMetaType::Type::Float
-		|| uniform.type() == QMetaType::Type::Double)
+	case Uniform::Type::Int:
+		return create_number_input (uniform, column, 0);
+		break;
+
+	case Uniform::Type::UInt:
+		return create_number_input (uniform, column, 0, 0);
+		break;
+
+	case Uniform::Type::Float:
+	case Uniform::Type::Double:
 	{
 		const size_t decimal_points = get_decimal_points (uniform.type());
-		source = create_number_input (uniform, column, decimal_points);
+		return create_number_input (uniform, column, decimal_points);
 	}
-	return source;
+	break;
+
+	default:
+	{
+		assert (false && "Uniform type is not a number.");
+		return QString();
+	}
+	break;
+	}
 }
 
 QString Inspector::create_number_input (
 	Uniform const& uniform,
-	size_t         index,
+	int            index,
 	size_t         decimal_points,
 	int            minimum,
 	int            maximum)
@@ -242,6 +271,7 @@ QString Inspector::create_number_input (
 		.arg (uniform.name())
 		.arg (index)
 		.arg (convert_value_for_input_field (
+			uniform.type(),
 			uniform.value (index),
 			decimal_points))
 		.arg (decimal_points)
@@ -250,44 +280,41 @@ QString Inspector::create_number_input (
 		.arg (decimal_points != 0 ? "DoubleValidator" : "IntValidator");
 }
 
-QString Inspector::create_id (Uniform const& uniform, const unsigned int index)
+QString Inspector::create_id (Uniform const& uniform, int index)
 {
 	QString id_name = uniform.name().replace ('.', '_');
 	return id_name + "_" + QString::number (index);
 }
 
 int Inspector::convert_value_for_input_field (
+	Uniform::Type   type,
 	QVariant const& value,
 	size_t          decimal_points)
 {
 	const double exponent = qPow (10, decimal_points);
-	if (value.type() == QMetaType::Type::Int)
+	switch (type)
 	{
-		return value.toInt();
-	}
-	else if (value.type() == QMetaType::Type::UInt)
-	{
-		return static_cast<int> (value.toUInt());
-	}
-	else if (value.type() == QMetaType::Type::Float)
-	{
+	case Uniform::Type::Int: return value.toInt();
+
+	case Uniform::Type::UInt: return static_cast<int> (value.toUInt());
+
+	case Uniform::Type::Float:
 		return static_cast<int> (value.toFloat() * exponent);
-	}
-	else if (value.type() == QMetaType::Type::Double)
-	{
+
+	case Uniform::Type::Double:
 		return static_cast<int> (value.toDouble() * exponent);
-	}
-	else
+
+	default:
 	{
-		qDebug() << "Number type is not supported";
-		const double double_value = value.toDouble();
-		return static_cast<int> (double_value * exponent);
+		assert (false && "Number type is not supported");
+		return 0.0;
+	}
 	}
 }
 
-size_t Inspector::get_decimal_points (QMetaType::Type type)
+size_t Inspector::get_decimal_points (Uniform::Type type)
 {
-	if (type == QMetaType::Type::Float || type == QMetaType::Type::Double)
+	if (type == Uniform::Type::Float || type == Uniform::Type::Double)
 	{
 		return 6;
 	}

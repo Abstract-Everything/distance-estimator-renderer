@@ -1,6 +1,5 @@
 #include "main_window.hpp"
 
-#include <QMetaType>
 #include <QSurfaceFormat>
 
 Main_Window::Main_Window (QWindow* parent) : QQuickWindow (parent)

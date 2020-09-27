@@ -41,7 +41,7 @@ void Viewport_Renderer::render()
 	const unsigned int height
 		= static_cast<unsigned int> (framebufferObject()->height());
 	Singletons::renderer.set_uniform (
-		Uniform ("globals.resolution", {width, height}));
+		Uniform ("globals.resolution", Uniform::Type::UInt, {width, height}));
 
 	Singletons::renderer.render();
 	window->resetOpenGLState();
