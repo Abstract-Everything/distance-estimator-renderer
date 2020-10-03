@@ -1,4 +1,5 @@
 #include "structures.glsl"
+#include "constants.glsl"
 
 uniform Camera_3d camera;
 
@@ -10,17 +11,31 @@ out vec3 f_ray_direction;
 void main()
 {
 	float aspect = float (globals.resolution.y) / float (globals.resolution.x);
-	float distance = atan (camera.fov) * camera.near_plane * camera.zoom;
+	float zoom  = clamp (camera.zoom * -1.0f + 1.0f, min_zoom, 2.0f);
+	float width = tan (camera.fov / 2.0f) * camera.near_plane * zoom;
 
-	vec3 above  = vec3 (0.0f, cos (camera.pitch), -sin (camera.pitch));
-	vec3 toward = vec3 (sin (camera.yaw), 0.0f, cos (camera.yaw));
+	vec3 forward  = normalize (vec3 (
+		  sin (camera.yaw)
+		, sin (camera.pitch)
+		, cos (camera.yaw)
+		)
+	);
+	
+	vec3 up  = normalize (vec3 (
+		  -sin (camera.yaw) * sin (camera.pitch)
+		, cos (camera.pitch)
+		, -cos (camera.yaw) * sin (camera.pitch)
+		)
+	);
 
-	vec3 right   = normalize (cross (above, toward)) * distance;
-	vec3 forward = normalize (cross (right, above)) * camera.near_plane;
-	vec3 up      = normalize (cross (forward, right)) * distance * aspect;
+	vec3 right   = normalize (cross (up, forward));
 
-	f_ray_direction = forward + right * v_position.x + up * v_position.y;
+	f_ray_direction =
+		forward
+		+ width * v_position.x * right
+		+ width * aspect * v_position.y * up;
+
 	f_ray_position  = camera.position;
 
-	gl_Position = vec4 (v_position, 0, 1);
+	gl_Position = vec4 (v_position, 0.0f, 1.0f);
 }

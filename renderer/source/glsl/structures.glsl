@@ -16,15 +16,15 @@ struct Camera_3d
 	float roll       = 0.0f;
 	float yaw        = 0.0f;
 	float pitch      = 0.0f;
-	float fov        = 3.1415926535897932384;
+	float fov        = 1.57079632679;
 	float near_plane = 1.0f;
-	float zoom       = 1.0f;
+	float zoom       = 0.0f;
 };
 
 struct Camera_2d
 {
 	vec2  position = (0.0f, 0.0f);
-	float zoom     = 1.0f;
+	float zoom     = 0.0f;
 };
 
 struct Colouring
