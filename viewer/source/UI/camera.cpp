@@ -1,5 +1,6 @@
 #include "camera.hpp"
 
+#include "constants.hpp"
 #include "renderer.hpp"
 
 #include <QDebug>
@@ -72,8 +73,7 @@ bool Camera::eventFilter (QObject* watched, QEvent* event)
 	case QEvent::KeyPress:
 	case QEvent::KeyRelease:
 	{
-		QKeyEvent* key_event = static_cast<QKeyEvent*> (event);
-		update_move_direction (*key_event);
+		update_move_direction (*static_cast<QKeyEvent*> (event));
 		return true;
 	}
 
@@ -81,8 +81,13 @@ bool Camera::eventFilter (QObject* watched, QEvent* event)
 	case QEvent::MouseMove:
 	case QEvent::MouseButtonRelease:
 	{
-		QMouseEvent* mouse_event = static_cast<QMouseEvent*> (event);
-		update_pan_direction (*mouse_event);
+		update_pan_direction (*static_cast<QMouseEvent*> (event));
+		return true;
+	}
+
+	case QEvent::Wheel:
+	{
+		update_zoom_offset (*static_cast<QWheelEvent*> (event));
 		return true;
 	}
 
@@ -91,53 +96,116 @@ bool Camera::eventFilter (QObject* watched, QEvent* event)
 	}
 }
 
+float Camera::get_zoom()
+{
+	Uniform zoom = Singletons::renderer.get_uniform ("camera.zoom");
+	return zoom.value (0).toFloat();
+}
+
+float Camera::get_zoom_factor()
+{
+	const float zoom = get_zoom();
+	return qBound (0.0f, zoom + 1.0f, 2.0f);
+}
+
 void Camera::update_uniforms()
 {
-	float deltaTime = static_cast<float> (m_timer.elapsed()) / 1000.0f;
-	update_position (deltaTime);
-	update_view (deltaTime);
+	float delta_time = static_cast<float> (m_timer.elapsed()) / 1000.0f;
+	update_zoom (delta_time);
+	update_position (delta_time);
+	update_view (delta_time);
 	m_timer.restart();
 }
 
-void Camera::update_position (float deltaTime)
+void Camera::update_zoom(float delta_time)
 {
-	const QVector3D move_offset = move_direction * deltaTime;
+	if (qAbs (zoom_offset) < cnst::min_ui_float)
+	{
+		return;
+	}
+
+	Uniform zoom = Singletons::renderer.get_uniform ("camera.zoom");
+	const float zoom_value  = zoom.value (0).toFloat();
+	const float zoom_change = zoom_delta * delta_time;
+	zoom.set_value (qBound (-1.0f, zoom_value + zoom_change, 1.0f), 0);
+	Singletons::renderer.set_uniform (zoom);
+	zoom_offset -= zoom_change;
+	if (qAbs (zoom_offset) < qAbs (zoom_change))
+	{
+		zoom_offset = 0.0f;
+	}
+}
+
+void Camera::update_position (float delta_time)
+{
+	const QVector3D move_offset
+		= move_direction * delta_time * get_zoom_factor();
 	Uniform position = Singletons::renderer.get_uniform ("camera.position");
 	if (dimensions == Dimensions::Two)
 	{
-		position.set_value (position.value (0).toFloat() + move_offset.x(), 0);
-		position.set_value (position.value (1).toFloat() + move_offset.y(), 1);
+		update_position_2d (move_offset, position);
 	}
 	else if (dimensions == Dimensions::Three)
 	{
-		position.set_value (position.value (0).toFloat() + move_offset.x(), 0);
-		position.set_value (position.value (1).toFloat() + move_offset.y(), 1);
-		position.set_value (position.value (2).toFloat() + move_offset.z(), 2);
+		update_position_3d (move_offset, position);
 	}
 	Singletons::renderer.set_uniform (position);
 }
 
-void Camera::update_view (float /* deltaTime */)
+void Camera::update_position_2d (
+	QVector3D const& move_offset,
+	Uniform& position)
 {
-	const QVector2D offset = QVector2D (-1.0f, 1.0f) * pan_direction;
+	position.set_value (position.value (0).toFloat() + move_offset.x(), 0);
+	position.set_value (position.value (1).toFloat() + move_offset.y(), 1);
+}
+
+void Camera::update_position_3d (
+	QVector3D const& move_offset,
+	Uniform&         position)
+{
+	position.set_value (position.value (0).toFloat() + move_offset.x(), 0);
+	position.set_value (position.value (1).toFloat() + move_offset.y(), 1);
+	position.set_value (position.value (2).toFloat() + move_offset.z(), 2);
+}
+
+void Camera::update_view (float /* delta_time */)
+{
+	const QVector2D offset
+		= get_zoom_factor() * QVector2D (-1.0f, 1.0f) * pan_direction;
+	pan_direction          = {0.0f, 0.0f};
 	if (dimensions == Dimensions::Two)
 	{
-		Uniform position = Singletons::renderer.get_uniform ("camera.position");
-		position.set_value (position.value (0).toFloat() + offset.x(), 0);
-		position.set_value (position.value (1).toFloat() + offset.y(), 1);
-		Singletons::renderer.set_uniform (position);
+		update_view_2d (offset);
 	}
 	else if (dimensions == Dimensions::Three)
 	{
-		const float pi_2  = qAcos (-1);
-		Uniform     yaw   = Singletons::renderer.get_uniform ("camera.yaw");
-		Uniform     pitch = Singletons::renderer.get_uniform ("camera.pitch");
-		yaw.set_value (yaw.value (0).toFloat() + offset.x() * pi_2, 0);
-		pitch.set_value (pitch.value (0).toFloat() + offset.y() * pi_2, 0);
-		Singletons::renderer.set_uniform (yaw);
-		Singletons::renderer.set_uniform (pitch);
+		update_view_3d (offset);
 	}
-	pan_direction = {0.0f, 0.0f};
+}
+
+void Camera::update_view_2d(QVector2D const& offset)
+{
+	Uniform position = Singletons::renderer.get_uniform ("camera.position");
+	position.set_value (position.value (0).toFloat() + offset.x(), 0);
+	position.set_value (position.value (1).toFloat() + offset.y(), 1);
+	Singletons::renderer.set_uniform (position);
+}
+
+void Camera::update_view_3d (QVector2D const& offset)
+{
+	Uniform yaw       = Singletons::renderer.get_uniform ("camera.yaw");
+	float yaw_value = (yaw.value (0).toFloat() + offset.x() * cnst::pi);
+	yaw.set_value (yaw_value, 0);
+	Singletons::renderer.set_uniform (yaw);
+
+	Uniform pitch = Singletons::renderer.get_uniform ("camera.pitch");
+	const float pitch_value = qBound (
+		-cnst::pi_2,
+		pitch.value (0).toFloat() + offset.y() * cnst::pi,
+		cnst::pi_2);
+	pitch.set_value (pitch_value, 0);
+	Singletons::renderer.set_uniform (pitch);
 }
 
 void Camera::update_move_direction (QKeyEvent const& key_event)
@@ -154,7 +222,6 @@ void Camera::update_move_direction (QKeyEvent const& key_event)
 
 void Camera::update_move_direction_2d (QKeyEvent const& key_event)
 {
-
 	if (key_event.type() == QEvent::KeyPress)
 	{
 		switch (key_event.key())
@@ -227,4 +294,19 @@ void Camera::update_pan_direction (QMouseEvent const& mouse_event)
 
 	default: break;
 	}
+}
+
+void Camera::update_zoom_offset (QWheelEvent const& wheel_event)
+{
+	if (qAbs (wheel_event.angleDelta().y()) == 0)
+	{
+		return;
+	}
+	const float offset    = wheel_event.angleDelta().y();
+	const float direction = offset / qAbs (offset);
+
+	const float zoom        = qAbs (get_zoom() + zoom_offset);
+	const float zoom_change = 1.0f - zoom;
+	zoom_offset             = direction * qMax (zoom_change, cnst::min_ui_float);
+	zoom_delta              = zoom_offset;
 }

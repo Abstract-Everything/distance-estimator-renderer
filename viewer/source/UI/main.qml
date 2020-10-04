@@ -13,11 +13,12 @@ Main_Window_
 
 	title: qsTr ("Fractal renderer")
 
-	minimumWidth: 640
-	minimumHeight: 480
+	minimumWidth: 1280
+	minimumHeight: 720
 
-	width: 640
-	height: 480
+	// If these are not specified the split initialises incorrectly
+	width:  1280
+	height: 720
 
 	SplitView
 	{
@@ -26,16 +27,14 @@ Main_Window_
 
 		Viewport
 		{
-			id: viewport
-
-			Layout.fillWidth: true
-			Layout.minimumWidth: 160
+			width: main_window.width / 2
+			Layout.minimumWidth: 256
 		}
 
 		Inspector
 		{
-			id: inspector
-			Layout.minimumWidth: 160
+			width: main_window.width / 2
+			Layout.minimumWidth: 256
 		}
 	}
 }
