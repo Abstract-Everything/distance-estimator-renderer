@@ -20,15 +20,9 @@ void main()
 		, cos (camera.yaw)
 		)
 	);
-	
-	vec3 up  = normalize (vec3 (
-		  -sin (camera.yaw) * sin (camera.pitch)
-		, cos (camera.pitch)
-		, -cos (camera.yaw) * sin (camera.pitch)
-		)
-	);
 
-	vec3 right   = normalize (cross (up, forward));
+	vec3 right = normalize (cross (vec3(0.0f, 1.0f, 0.0f), forward));
+	vec3 up	   = normalize (cross (forward, right));
 
 	f_ray_direction =
 		forward

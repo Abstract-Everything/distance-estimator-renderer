@@ -17,7 +17,7 @@ struct Camera_3d
 	float yaw        = 0.0f;
 	float pitch      = 0.0f;
 	float fov        = 1.57079632679;
-	float near_plane = 1.0f;
+	float near_plane = 0.5f;
 	float zoom       = 0.0f;
 };
 

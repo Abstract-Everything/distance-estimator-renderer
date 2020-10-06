@@ -55,10 +55,6 @@ Code:
 	Refactor lexer and parser for better error handling.
 	Move GLSL struct default values to variable declaration instead of struct definition.
 
-Rendering:
-	Fix aspect when scaling window resolution.
-	Fix stretching at the ends of the screen.
-
 Performance:
 	Render image by splitting it into smaller tiles.
 	Reduce detail while panning/ moving camera.
