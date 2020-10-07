@@ -74,11 +74,27 @@ target_link_libraries (renderer PUBLIC
 	GLEW::GLEW
 )
 
-add_custom_command (TARGET renderer
-	COMMAND ${CMAKE_COMMAND}
-		-E copy_directory
-		"${CMAKE_CURRENT_LIST_DIR}/glsl"
-		"${CMAKE_BINARY_DIR}/resources/glsl/"
-		COMMENT "Copying shaders."
-		VERBATIM
+set (shaders
+	"glsl/2d/colouring.frag"
+	"glsl/2d/complex_plane.frag"
+	"glsl/2d/complex_plane.vert"
+	"glsl/2d/signed_distance_functions/flat_background.frag"
+	"glsl/2d/signed_distance_functions/julia_set.frag"
+	"glsl/2d/signed_distance_functions/mandelbrot.frag"
+	"glsl/3d/camera_frame.vert"
+	"glsl/3d/colouring.frag"
+	"glsl/3d/ray_march.frag"
+	"glsl/3d/signed_distance_functions/cube.frag"
+	"glsl/3d/signed_distance_functions/sphere.frag"
+	"glsl/constants.glsl"
+	"glsl/structures.glsl"
+	"glsl/utility.frag"
 )
+
+foreach(file IN LISTS shaders)
+	configure_file (
+		"${CMAKE_CURRENT_LIST_DIR}/${file}"
+		"${CMAKE_BINARY_DIR}/${file}"
+		COPYONLY
+	)
+endforeach()

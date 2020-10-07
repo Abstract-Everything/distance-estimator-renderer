@@ -29,7 +29,7 @@ fs::path find_glsl_path()
 		build.append (subpath.string());
 	}
 
-	return build / "resources" / "glsl";
+	return build / "glsl";
 }
 } // namespace
 

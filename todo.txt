@@ -32,7 +32,6 @@ Project:
 	Use issues instead of this document.
 	CMake:
 		Viewer should compile with Werror without external code errors.
-		resources/glsl should update automatically.
 		Visual studio:
 			Show folders as filters.
 			Show Header files.
