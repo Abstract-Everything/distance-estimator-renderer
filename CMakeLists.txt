@@ -9,5 +9,8 @@ project (
 set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set (CMAKE_CXX_EXTENSIONS OFF)
 
+include (cmake/header_directories.cmake)
+include (cmake/group_sources.cmake)
+
 add_subdirectory (renderer)
 add_subdirectory (viewer)

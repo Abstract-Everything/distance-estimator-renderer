@@ -33,8 +33,7 @@ Project:
 	CMake:
 		Viewer should compile with Werror without external code errors.
 		Visual studio:
-			Show folders as filters.
-			Show Header files.
+			Show qml files in solution explorer.
 
 User Experience:
 	Improve input fields for floats and doubles.
