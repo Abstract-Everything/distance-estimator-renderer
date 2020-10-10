@@ -1,61 +1,85 @@
 Features:
-Development:
-	Add tests.
-	Add continuous integration.
+	User experience:
+		Save Rendered image.
+		Add constraints to glsl variables (Valid range, should be normalized, ..).
+		Put all errors in a logger instead of the standard streams/ qDebug.
+		An editor to easily move and position the objects at interactive speeds.
+		About and help section with user manual.
 
-User experience:
-	Add constraints to glsl variables (Valid range, should be normalized, ..).
-	Put all errors in a logger instead of the standard streams/ qDebug.
+	Editor:
+		Save and Load scenes.
 
-Fractals:
-	Basic shapes (Triangle, Rectangle, Torus, ).
-	Mandelbulb.
-	Mandelbox.
-	Kaledioscopic IFS.
-	4D shapes
+	Fractals:
+		Basic shapes (Triangle, Rectangle, Torus, ).
+		Mandelbulb.
+		Mandelbox.
+		Kaledioscopic IFS.
+		4D shapes.
 
-Rendering:
-	Anti aliasing.
-	High resolution render + downscale.
+	Scene:
+		Multiple objects with boolean operators on DE.
 
-	Transformations.
-	Multiple objects in scene with boolean operators on DE.
+	Camera:
+		Move relative to forward.
+		Option to use target coordinate to force the camera to look at.
+		Animation paths to record a video.
+		Fish eye lense.
+		Equirectengular.
+		Fulldome.
 
-	Ambient occlusion.
-	Lighting support (Hard and soft shadows).
-	Reflections.
-	Transmissive.
-	Add more colouring schemes.
+	Rendering:
+		Anti aliasing.
+		High resolution render + downscale.
+		Take increasingly more samples if camera stays still.
+
+		Transformations.
+
+		Add more colouring schemes.
+
+		Light:
+			Ambient occlusion.
+			Soft shadows.
+			Hard shadows.
+
+		Materials:
+			Reflections.
+			Transmissive.
 
 Enhancements:
-Project:
-	Use issues instead of this document.
-	CMake:
-		Viewer should compile with Werror without external code errors.
-		Visual studio:
-			Show qml files in solution explorer.
+	Project:
+		Use issues instead of this document.
+		CMake:
+			Viewer should compile with Werror without external code errors.
+			Visual studio:
+				Show qml files in solution explorer.
 
-User Experience:
-	Improve input fields for floats and doubles.
-	Set minimum inspector width in order to avoid hiding inputs.
-	Show uniform editor buttons under each other when window is small.
+	Building:
+		Add continuous integration.
+		Build release packages with CPU and GPU support for Windows and Ubuntu.
 
-Code:
-	Document code (files, classes and files).
-	Use clang-tidy:
-		Remove single line statements (if, for, while).
-		Add newline after "break;" in switch statements.
-		Use = default for empty destructors.
+	Development
+		Add tests.
+		Refactor lexer and parser for better error handling.
+		Move GLSL struct default values to variable declaration instead of struct definition.
 
-	Set clang-format to:
-		break before closing ')' if it does not fit in a single line.
+	Code:
+		Document code (files, classes and files).
+		Use clang-tidy:
+			Remove single line statements (if, for, while).
+			Add newline after "break;" in switch statements.
+			Use = default for empty destructors.
 
-	Refactor lexer and parser for better error handling.
-	Move GLSL struct default values to variable declaration instead of struct definition.
+		Set clang-format to:
+			break before closing ')' if it does not fit in a single line.
 
-Performance:
-	Render image by splitting it into smaller tiles.
-	Reduce detail while panning/ moving camera.
-	Render with increased detail if camera is not moving.
+	User Experience:
+		Improve input fields for floats and doubles.
+		Set minimum inspector width in order to avoid hiding inputs.
+		Show uniform editor buttons under each other when window is small.
+		Show uniform variables under each other since most tabs only have a few.
 
-	Take increasingly more samples if camera stays still.
+	Performance:
+		Render image by splitting it into smaller tiles.
+		Reduce detail while panning/ moving camera.
+		Render with increased detail if camera is not moving.
+		Do not rerender if scene does not change.
