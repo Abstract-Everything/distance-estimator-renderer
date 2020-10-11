@@ -21,7 +21,6 @@ Features:
 		Multiple objects with boolean operators on DE.
 
 	Camera:
-		Move relative to forward.
 		Option to use target coordinate to force the camera to look at.
 		Animation paths to record a video.
 		Fish eye lense.
