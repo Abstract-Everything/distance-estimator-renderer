@@ -7,6 +7,7 @@ Features:
 		About and help section with user manual.
 
 	Editor:
+		Place objects in scene.
 		Save and Load scenes.
 
 	Fractals:
