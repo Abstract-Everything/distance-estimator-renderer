@@ -29,7 +29,15 @@ file (
 )
 header_directories (viewer_directories ${viewer_headers})
 
-add_executable (viewer ${viewer_sources} ${viewer_headers} ${QT_RESOURCES})
+file (
+	GLOB_RECURSE
+	viewer_qtres
+	CONFIGURE_DEPENDS
+	"*.qml" "*.qrc"
+)
+
+add_executable (viewer
+	${viewer_sources} ${viewer_headers} ${viewer_qtres} ${QT_RESOURCES})
 
 target_include_directories (
 	viewer PRIVATE ${QtQml_INCLUDE_DIRS} "${viewer_directories}")
@@ -88,4 +96,5 @@ target_link_libraries (viewer
 )
 
 group_sources(
-	"${CMAKE_CURRENT_LIST_DIR}" "${viewer_sources}" "${viewer_headers}")
+	"${CMAKE_CURRENT_LIST_DIR}"
+	"${viewer_sources}" "${viewer_headers}" "${viewer_qtres}")

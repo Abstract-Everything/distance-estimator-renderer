@@ -51,8 +51,6 @@ Enhancements:
 		Use issues instead of this document.
 		CMake:
 			Viewer should compile with Werror without external code errors.
-			Visual studio:
-				Show qml files in solution explorer.
 
 	Building:
 		Add continuous integration.
