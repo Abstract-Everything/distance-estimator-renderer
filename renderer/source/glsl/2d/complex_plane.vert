@@ -10,7 +10,7 @@ out vec2 f_position;
 void main()
 {
 	float aspect = float (globals.resolution.y) / float (globals.resolution.x);
-	float screen_width = float (globals.resolution.x) / 512.0f;
+	float screen_width = float (globals.resolution.x) / screen_in_pixels_2d;
 	float zoom		   = clamp (camera.zoom * -1.0f + 1.0f, min_zoom, 2.0f);
 	float frame_width  = max (screen_width * zoom, min_zoom);
 
