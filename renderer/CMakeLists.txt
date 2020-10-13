@@ -31,11 +31,12 @@ header_directories (renderer_directories ${renderer_headers})
 file (
 	GLOB_RECURSE
 	renderer_shaders
-	RELATIVE "${CMAKE_CURRENT_LIST_DIR}/source"
+	CONFIGURE_DEPENDS
 	"*.glsl" "*.vert" "*.frag"
 )
 
-add_library (renderer STATIC ${renderer_sources} ${renderer_headers})
+add_library (renderer STATIC
+	${renderer_sources} ${renderer_headers} ${renderer_shaders})
 
 target_include_directories (renderer
 	PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include/"
@@ -92,14 +93,15 @@ target_link_libraries (renderer PUBLIC
 )
 
 foreach(shader IN LISTS renderer_shaders)
+	string(REPLACE "${CMAKE_CURRENT_LIST_DIR}/source" "" path "${shader}")
 	configure_file (
-		"${CMAKE_CURRENT_LIST_DIR}/source/${shader}"
-		"${CMAKE_BINARY_DIR}/${shader}"
+		"${CMAKE_CURRENT_LIST_DIR}/source/${path}"
+		"${CMAKE_BINARY_DIR}/${path}"
 		COPYONLY
 	)
 endforeach()
 
 group_sources(
 	"${CMAKE_CURRENT_LIST_DIR}"
-	"${renderer_sources}" "${renderer_headers}"
+	"${renderer_sources}" "${renderer_headers}" "${renderer_shaders}"
 )
