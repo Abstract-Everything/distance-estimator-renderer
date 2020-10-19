@@ -1,6 +1,7 @@
 #pragma once
 
 #include "uniform.hpp"
+#include "screen_vertex_array.hpp"
 
 #include <GL/glew.h>
 
@@ -8,6 +9,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace renderer
 {
@@ -33,7 +35,7 @@ private:
 	std::string fragment_shader_code;
 
 	GLuint program_id   = 0;
-	GLuint vertex_array = 0;
+	std::unique_ptr<Screen_Vertex_Array> screen_vertices = nullptr;
 
 	void print_shaders (
 		std::string const& vertex_shader,

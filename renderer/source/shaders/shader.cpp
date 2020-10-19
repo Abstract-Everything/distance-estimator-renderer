@@ -10,31 +10,7 @@ namespace renderer
 
 void Shader::initialise_vertex_data()
 {
-	const std::vector<float> vertices{
-		 1,  1,
-		 1, -1,
-		-1, -1,
-		 1,  1,
-		-1, -1,
-		-1,  1
-	};
-
-	glGenVertexArrays (1, &vertex_array);
-	glBindVertexArray (vertex_array);
-
-	GLuint vertex_buffer;
-	glGenBuffers (1, &vertex_buffer);
-	glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer);
-	glBufferData (
-		GL_ARRAY_BUFFER,
-		vertices.size() * sizeof (float),
-		&vertices[0],
-		GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray (0);
-	glVertexAttribPointer (0, 2, GL_FLOAT, GL_FALSE, sizeof (float) * 2, 0);
-
-	glBindVertexArray (0);
+	screen_vertices = std::make_unique<Screen_Vertex_Array>();
 }
 
 std::vector<std::unique_ptr<Uniform>> Shader::change_shader (
@@ -89,11 +65,7 @@ void Shader::draw()
 	if (valid)
 	{
 		glUseProgram (program_id);
-
-		glBindVertexArray (vertex_array);
-		glDrawArrays (GL_TRIANGLES, 0, 6);
-		glBindVertexArray (0);
-
+		screen_vertices->render();
 		glUseProgram (0);
 	}
 }
