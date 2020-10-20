@@ -3,6 +3,7 @@
 #include "main_window.hpp"
 #include "uniform.hpp"
 #include "viewport.hpp"
+#include "singletons.hpp"
 
 #include <QGuiApplication>
 #include <QOpenGLContextGroup>
@@ -23,6 +24,8 @@ int main (int argc, char** argv)
 
 	// QTypes
 	qRegisterMetaType<Uniform> ("Uniform");
+
+	Singletons::create_renderer();
 
 	QQmlApplicationEngine engine (QUrl ("qrc:/UI/main.qml"));
 	return application.exec();

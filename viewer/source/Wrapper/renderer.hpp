@@ -10,8 +10,6 @@
 
 #include <filesystem>
 
-namespace Singletons
-{
 class Renderer : public QObject
 {
 	Q_OBJECT
@@ -42,6 +40,3 @@ private:
 	QMap<QString, Uniform>               m_uniforms;
 	renderer::Renderer                   m_renderer_wrapper;
 };
-
-extern Renderer renderer;
-} // namespace Singletons

@@ -1,28 +1,30 @@
 #include "inspector.hpp"
 
 #include "renderer.hpp"
+#include "singletons.hpp"
 
 #include <QList>
 #include <QtMath>
 
 Inspector::Inspector()
 {
-	Singletons::renderer.init_shaders();
+	Singletons::renderer().init_shaders();
 	connect (
-		&Singletons::renderer,
-		&Singletons::Renderer::update_shader,
+		&Singletons::renderer(),
+		&Renderer::update_shader,
 		this,
 		&Inspector::shader_updated);
+
 	connect (
-		&Singletons::renderer,
-		&Singletons::Renderer::update_uniform,
+		&Singletons::renderer(),
+		&Renderer::update_uniform,
 		this,
 		&Inspector::uniform_updated);
 }
 
 QStringList Inspector::shaders()
 {
-	shader_names = Singletons::renderer.get_shaders();
+	shader_names = Singletons::renderer().get_shaders();
 
 	int index = shader_names.indexOf ("flat_background");
 	if (index != -1)
@@ -42,7 +44,7 @@ void Inspector::update_shader (int index)
 		return;
 	}
 
-	Singletons::renderer.set_shader (shader_names[index]);
+	Singletons::renderer().set_shader (shader_names[index]);
 }
 
 QStringList Inspector::create_uniforms_qml_source()
@@ -62,7 +64,7 @@ void Inspector::set_uniform_value (
 	double         value,
 	quint32        index)
 {
-	Uniform uniform = Singletons::renderer.get_uniform (name);
+	Uniform uniform = Singletons::renderer().get_uniform (name);
 	switch (uniform.type())
 	{
 	case Uniform::Type::Int:
@@ -85,7 +87,7 @@ void Inspector::set_uniform_value (
 		assert (false && "Uniform has Invalid as type.");
 		break;
 	}
-	Singletons::renderer.set_uniform (uniform);
+	Singletons::renderer().set_uniform (uniform);
 }
 
 void Inspector::shader_updated()
@@ -95,7 +97,7 @@ void Inspector::shader_updated()
 
 void Inspector::uniform_updated (QString const& uniform_name)
 {
-	Uniform const& uniform = Singletons::renderer.get_uniform (uniform_name);
+	Uniform const& uniform = Singletons::renderer().get_uniform (uniform_name);
 	for (int i = 0; i < uniform.size(); ++i)
 	{
 		QObject* object = findChild<QObject*> (create_id (uniform, i));
@@ -116,7 +118,7 @@ void Inspector::uniform_updated (QString const& uniform_name)
 QMap<QString, QList<Uniform>> Inspector::group_uniforms()
 {
 	QMap<QString, QList<Uniform>> grouped_uniforms;
-	for (Uniform const& uniform : Singletons::renderer.get_uniforms())
+	for (Uniform const& uniform : Singletons::renderer().get_uniforms())
 	{
 		const QString tab_name = uniform.name().contains ('.')
 									 ? uniform.name().section ('.', 0, 0)

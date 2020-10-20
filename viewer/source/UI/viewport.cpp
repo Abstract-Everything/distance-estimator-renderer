@@ -1,6 +1,7 @@
 #include "viewport.hpp"
 
 #include "renderer.hpp"
+#include "singletons.hpp"
 
 #include <QString>
 #include <QStringList>
@@ -23,7 +24,7 @@ Viewport_Renderer::Viewport_Renderer (QQuickWindow* window)
 	: QQuickFramebufferObject::Renderer()
 	, window (window)
 {
-	Singletons::renderer.init_renderer();
+	Singletons::renderer().init_renderer();
 }
 
 QOpenGLFramebufferObject*
@@ -40,10 +41,10 @@ void Viewport_Renderer::render()
 		= static_cast<unsigned int> (framebufferObject()->width());
 	const unsigned int height
 		= static_cast<unsigned int> (framebufferObject()->height());
-	Singletons::renderer.set_uniform (
+	Singletons::renderer().set_uniform (
 		Uniform ("globals.resolution", Uniform::Type::UInt, {width, height}));
 
-	Singletons::renderer.render();
+	Singletons::renderer().render();
 	window->resetOpenGLState();
 	update();
 }

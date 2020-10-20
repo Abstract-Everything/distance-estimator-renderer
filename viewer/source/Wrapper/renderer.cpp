@@ -23,8 +23,11 @@ fs::path find_glsl_path()
 			folder.end(),
 			folder.begin(),
 			::tolower);
+
 		if (folder == "bin")
+		{
 			break;
+		}
 
 		build.append (subpath.string());
 	}
@@ -33,8 +36,6 @@ fs::path find_glsl_path()
 }
 } // namespace
 
-namespace Singletons
-{
 void Renderer::init_renderer()
 {
 	QMutexLocker lock (&m_mutex);
@@ -117,6 +118,3 @@ void Renderer::render()
 	}
 	m_renderer_wrapper.render();
 }
-
-Renderer renderer = Renderer();
-} // namespace Singletons

@@ -2,6 +2,7 @@
 
 #include "constants.hpp"
 #include "renderer.hpp"
+#include "singletons.hpp"
 
 #include <QDebug>
 #include <QKeyEvent>
@@ -11,8 +12,8 @@
 Camera::Camera() : QQuickItem()
 {
 	connect (
-		&Singletons::renderer,
-		&Singletons::Renderer::update_shader,
+		&Singletons::renderer(),
+		&Renderer::update_shader,
 		this,
 		&Camera::shader_updated);
 
@@ -41,7 +42,7 @@ void Camera::set_event_filter (QObject* mouse_area)
 
 void Camera::shader_updated()
 {
-	Uniform position = Singletons::renderer.get_uniform ("camera.position");
+	Uniform position = Singletons::renderer().get_uniform ("camera.position");
 	if (position.size() == 2)
 	{
 		dimensions = Dimensions::Two;
@@ -98,7 +99,7 @@ bool Camera::eventFilter (QObject* watched, QEvent* event)
 
 float Camera::get_zoom()
 {
-	Uniform zoom = Singletons::renderer.get_uniform ("camera.zoom");
+	Uniform zoom = Singletons::renderer().get_uniform ("camera.zoom");
 	return zoom.value (0).toFloat();
 }
 
@@ -108,9 +109,9 @@ void Camera::set_zoom(float zoom_value)
 		-1.0f + cnst::min_ui_float,
 		zoom_value,
 		1.0f - cnst::min_ui_float);
-	Uniform zoom = Singletons::renderer.get_uniform ("camera.zoom");
+	Uniform zoom = Singletons::renderer().get_uniform ("camera.zoom");
 	zoom.set_value (zoom_value, 0);
-	Singletons::renderer.set_uniform (zoom);
+	Singletons::renderer().set_uniform (zoom);
 }
 
 float Camera::get_zoom_factor()
@@ -122,9 +123,9 @@ float Camera::get_zoom_factor()
 std::tuple<QVector3D, QVector3D, QVector3D> Camera::get_basis()
 {
 	const float pitch
-		= Singletons::renderer.get_uniform ("camera.pitch").value (0).toFloat();
+		= Singletons::renderer().get_uniform ("camera.pitch").value (0).toFloat();
 	const float yaw
-		= Singletons::renderer.get_uniform ("camera.yaw").value (0).toFloat();
+		= Singletons::renderer().get_uniform ("camera.yaw").value (0).toFloat();
 
 	
 	QVector3D forward
@@ -168,7 +169,7 @@ void Camera::update_zoom(float delta_time)
 void Camera::update_position (float delta_time)
 {
 	const float multiplier = delta_time * get_zoom_factor();
-	Uniform position = Singletons::renderer.get_uniform ("camera.position");
+	Uniform position = Singletons::renderer().get_uniform ("camera.position");
 	if (dimensions == Dimensions::Two)
 	{
 		update_position_2d (multiplier, position);
@@ -177,7 +178,7 @@ void Camera::update_position (float delta_time)
 	{
 		update_position_3d (multiplier, position);
 	}
-	Singletons::renderer.set_uniform (position);
+	Singletons::renderer().set_uniform (position);
 }
 
 void Camera::update_position_2d (float multiplier, Uniform& position)
@@ -243,10 +244,10 @@ void Camera::update_view_2d(QVector2D const& offset)
 	QVector2D view_offset = QVector2D (offset.x(), offset.y() * aspect)
 							/ cnst::screen_in_pixels_2d;
 
-	Uniform position = Singletons::renderer.get_uniform ("camera.position");
+	Uniform position = Singletons::renderer().get_uniform ("camera.position");
 	position.set_value (position.value (0).toFloat() + view_offset.x(), 0);
 	position.set_value (position.value (1).toFloat() + view_offset.y(), 1);
-	Singletons::renderer.set_uniform (position);
+	Singletons::renderer().set_uniform (position);
 }
 
 void Camera::update_view_3d (QVector2D const& offset)
@@ -254,18 +255,18 @@ void Camera::update_view_3d (QVector2D const& offset)
 	QVector2D view_offset
 		= QVector2D (offset.x() / width(), offset.y() / height()) * cnst::pi_2;
 
-	Uniform yaw       = Singletons::renderer.get_uniform ("camera.yaw");
+	Uniform yaw       = Singletons::renderer().get_uniform ("camera.yaw");
 	float   yaw_value = (yaw.value (0).toFloat() + view_offset.x());
 	yaw.set_value (yaw_value, 0);
-	Singletons::renderer.set_uniform (yaw);
+	Singletons::renderer().set_uniform (yaw);
 
-	Uniform pitch = Singletons::renderer.get_uniform ("camera.pitch");
+	Uniform pitch = Singletons::renderer().get_uniform ("camera.pitch");
 	const float pitch_value = qBound (
 		-cnst::pi_2,
 		pitch.value (0).toFloat() + view_offset.y(),
 		cnst::pi_2);
 	pitch.set_value (pitch_value, 0);
-	Singletons::renderer.set_uniform (pitch);
+	Singletons::renderer().set_uniform (pitch);
 }
 
 void Camera::reset_move_direction()
