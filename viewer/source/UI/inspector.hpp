@@ -11,11 +11,10 @@
 class Inspector : public QQuickItem
 {
 	Q_OBJECT
-	Q_PROPERTY (QStringList shaders READ shaders)
+	Q_PROPERTY (QStringList shaders MEMBER shader_names NOTIFY shader_list_changed)
 
 public:
 	Inspector();
-	QStringList shaders();
 
 	Q_INVOKABLE void        update_shader (int index);
 	Q_INVOKABLE QStringList create_uniforms_qml_source();
@@ -23,9 +22,11 @@ public:
 	set_uniform_value (QString const& name, double value, quint32 index);
 
 signals:
+	void shader_list_changed();
 	void uniforms_changed();
 
 public slots:
+	void shader_list_updated();
 	void shader_updated();
 	void uniform_updated (QString const& uniform_name);
 

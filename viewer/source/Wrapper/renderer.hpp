@@ -15,12 +15,13 @@ class Renderer : public QObject
 	Q_OBJECT
 
 public:
-	void init_renderer();
-	void init_shaders();
+	Renderer();
+	void initialise();
 
 	QList<QString> get_shaders();
 	void           set_shader (QString const& shader_name);
 
+	bool           exists_uniform (QString const& name);
 	QList<Uniform> get_uniforms();
 	Uniform        get_uniform (QString const& name);
 	void           set_uniform (Uniform const& uniform);
@@ -28,11 +29,14 @@ public:
 	void render();
 
 signals:
+	void update_shader_list();
 	void update_shader();
 	void update_uniform (QString const& uniform_name);
 
 private:
-	std::filesystem::path glsl;
+	const std::filesystem::path glsl;
+
+	void init_shaders();
 
 	QMutex m_mutex;
 

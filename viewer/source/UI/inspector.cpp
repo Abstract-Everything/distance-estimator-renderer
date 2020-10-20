@@ -8,7 +8,12 @@
 
 Inspector::Inspector()
 {
-	Singletons::renderer().init_shaders();
+	connect (
+		&Singletons::renderer(),
+		&Renderer::update_shader_list,
+		this,
+		&Inspector::shader_list_updated);
+
 	connect (
 		&Singletons::renderer(),
 		&Renderer::update_shader,
@@ -20,20 +25,6 @@ Inspector::Inspector()
 		&Renderer::update_uniform,
 		this,
 		&Inspector::uniform_updated);
-}
-
-QStringList Inspector::shaders()
-{
-	shader_names = Singletons::renderer().get_shaders();
-
-	int index = shader_names.indexOf ("flat_background");
-	if (index != -1)
-	{
-		std::swap (shader_names[0], shader_names[index]);
-		update_shader (0);
-	}
-
-	return shader_names;
 }
 
 void Inspector::update_shader (int index)
@@ -88,6 +79,20 @@ void Inspector::set_uniform_value (
 		break;
 	}
 	Singletons::renderer().set_uniform (uniform);
+}
+
+void Inspector::shader_list_updated()
+{
+	shader_names = Singletons::renderer().get_shaders();
+
+	int index    = shader_names.indexOf ("flat_background");
+	if (index != -1)
+	{
+		std::swap (shader_names[0], shader_names[index]);
+		update_shader (0);
+	}
+
+	emit shader_list_changed();
 }
 
 void Inspector::shader_updated()

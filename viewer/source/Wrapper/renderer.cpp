@@ -36,16 +36,17 @@ fs::path find_glsl_path()
 }
 } // namespace
 
-void Renderer::init_renderer()
+Renderer::Renderer() : glsl(find_glsl_path()) {}
+
+void Renderer::initialise()
 {
 	QMutexLocker lock (&m_mutex);
 	m_renderer_wrapper.initialise();
+	init_shaders();
 }
 
 void Renderer::init_shaders()
 {
-	QMutexLocker lock (&m_mutex);
-	glsl = find_glsl_path();
 	const std::vector<fs::path> search_paths
 		= {fs::path{glsl / "2d" / "signed_distance_functions"},
 		   fs::path{glsl / "3d" / "signed_distance_functions"}};
@@ -57,6 +58,7 @@ void Renderer::init_shaders()
 		const QString name     = QString::fromStdString (std_name);
 		m_shaders[name]        = shader_path;
 	}
+	emit update_shader_list();
 }
 
 QList<QString> Renderer::get_shaders()
@@ -91,6 +93,11 @@ QList<Uniform> Renderer::get_uniforms()
 {
 	QMutexLocker lock (&m_mutex);
 	return m_uniforms.values();
+}
+
+bool Renderer::exists_uniform(QString const& name)
+{
+	return m_uniforms.contains (name);
 }
 
 void Renderer::set_uniform (Uniform const& uniform)

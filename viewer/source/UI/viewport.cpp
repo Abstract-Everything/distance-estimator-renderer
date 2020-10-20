@@ -24,7 +24,8 @@ Viewport_Renderer::Viewport_Renderer (QQuickWindow* window)
 	: QQuickFramebufferObject::Renderer()
 	, window (window)
 {
-	Singletons::renderer().init_renderer();
+	// ToDo: Figure out how to move this call into main
+	Singletons::renderer().initialise();
 }
 
 QOpenGLFramebufferObject*
@@ -37,12 +38,17 @@ Viewport_Renderer::createFramebufferObject (QSize const& size)
 
 void Viewport_Renderer::render()
 {
-	const unsigned int width
-		= static_cast<unsigned int> (framebufferObject()->width());
-	const unsigned int height
-		= static_cast<unsigned int> (framebufferObject()->height());
-	Singletons::renderer().set_uniform (
-		Uniform ("globals.resolution", Uniform::Type::UInt, {width, height}));
+	if (Singletons::renderer().exists_uniform ("globals.resolution"))
+	{
+		const unsigned int width
+			= static_cast<unsigned int> (framebufferObject()->width());
+		const unsigned int height
+			= static_cast<unsigned int> (framebufferObject()->height());
+		Singletons::renderer().set_uniform (Uniform (
+			"globals.resolution",
+			Uniform::Type::UInt,
+			{width, height}));
+	}
 
 	Singletons::renderer().render();
 	window->resetOpenGLState();
