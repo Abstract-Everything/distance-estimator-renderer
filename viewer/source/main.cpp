@@ -1,4 +1,4 @@
-#include "camera.hpp"
+#include "screen_input.hpp"
 #include "inspector.hpp"
 #include "main_window.hpp"
 #include "uniform.hpp"
@@ -20,7 +20,7 @@ int main (int argc, char** argv)
 	qmlRegisterType<Main_Window> ("renderer.main_window", 1, 0, "Main_Window_");
 	qmlRegisterType<Viewport> ("renderer.viewport", 1, 0, "Viewport_");
 	qmlRegisterType<Inspector> ("renderer.inspector", 1, 0, "Inspector_");
-	qmlRegisterType<Camera> ("renderer.camera", 1, 0, "Camera_");
+	qmlRegisterType<Screen_Input> ("renderer.screen_input", 1, 0, "Screen_Input_");
 
 	// QTypes
 	qRegisterMetaType<Uniform> ("Uniform");

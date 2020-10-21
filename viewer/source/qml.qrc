@@ -3,6 +3,6 @@
 		<file>UI/main.qml</file>
 		<file>UI/Viewport.qml</file>
 		<file>UI/Inspector.qml</file>
-		<file>UI/Camera.qml</file>
+		<file>UI/Screen_Input.qml</file>
 	</qresource>
 </RCC>
