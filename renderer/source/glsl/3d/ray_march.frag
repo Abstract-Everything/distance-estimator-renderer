@@ -9,6 +9,7 @@ struct Ray_Marcher
 	float hit_distance = 0.01f;
 };
 
+uniform Fragment_Globals f_globals;
 uniform Camera_3d   camera;
 uniform Ray_Marcher ray_marcher;
 
@@ -24,7 +25,7 @@ vec3 march (vec3 origin, vec3 direction)
 {
 	bool  hit              = false;
 	vec3  position         = origin;
-	float closest_distance = globals.world_size;
+	float closest_distance = f_globals.world_size;
 	float total_distance   = 0.0f;
 	float last_distance    = 0.0f;
 	uint  steps            = 0u;

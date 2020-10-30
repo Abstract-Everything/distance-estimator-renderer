@@ -1,6 +1,7 @@
 #include "structures.glsl"
 #include "constants.glsl"
 
+uniform Vertex_Globals v_globals;
 uniform Camera_3d camera;
 
 layout (location = 0) in vec2 v_position;
@@ -10,7 +11,8 @@ out vec3 f_ray_direction;
 
 void main()
 {
-	float aspect = float (globals.resolution.y) / float (globals.resolution.x);
+	float aspect = float (v_globals.resolution.y)
+				   / float (v_globals.resolution.x);
 	float zoom  = clamp (camera.zoom * -1.0f + 1.0f, min_zoom, 2.0f);
 	float width = tan (camera.fov / 2.0f) * camera.near_plane * zoom;
 

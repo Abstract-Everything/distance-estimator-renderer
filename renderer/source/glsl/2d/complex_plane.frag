@@ -11,6 +11,7 @@ struct Complex_Plane
 
 uniform Complex_Plane complex_plane;
 
+uniform Fragment_Globals f_globals;
 uniform Camera_2d camera;
 
 in vec2 f_position;
@@ -22,7 +23,7 @@ vec3  colour (float distance, float hit_distance);
 
 vec3 shade (vec2 position)
 {
-	return colour (DE (position), complex_plane.hit_distance);
+	return colour (DE (position), complex_plane.hit_distance, f_globals.time);
 }
 
 void main()

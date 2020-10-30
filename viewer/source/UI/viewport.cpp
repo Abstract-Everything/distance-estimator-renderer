@@ -72,14 +72,14 @@ void Viewport_Renderer::synchronize (QQuickFramebufferObject* quick_fbo)
 
 void Viewport_Renderer::render()
 {
-	if (Singletons::renderer().exists_uniform ("globals.resolution"))
+	if (Singletons::renderer().exists_uniform ("v_globals.resolution"))
 	{
 		const unsigned int width
 			= static_cast<unsigned int> (framebufferObject()->width());
 		const unsigned int height
 			= static_cast<unsigned int> (framebufferObject()->height());
 		Singletons::renderer().set_uniform (Uniform (
-			"globals.resolution",
+			"v_globals.resolution",
 			Uniform::Type::UInt,
 			{width, height}));
 	}

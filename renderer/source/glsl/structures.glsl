@@ -1,14 +1,16 @@
 #version 300 es
 precision mediump float;
 
-struct Globals
+struct Vertex_Globals
 {
-	float time;
 	uvec2 resolution;
-	float world_size = 2.0f;
 };
 
-uniform Globals globals;
+struct Fragment_Globals
+{
+	float time = 0.0f;
+	float world_size = 2.0f;
+};
 
 struct Camera_3d
 {
