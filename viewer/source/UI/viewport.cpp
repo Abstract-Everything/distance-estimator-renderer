@@ -67,6 +67,8 @@ void Viewport_Renderer::synchronize (QQuickFramebufferObject* quick_fbo)
 		= viewport->get_and_reset_camera_screen_input();
 
 	camera.update_uniforms (delta_time, camera_screen_input);
+
+	Singletons::renderer().update_shader_settings();
 	update();
 }
 

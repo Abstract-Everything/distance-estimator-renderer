@@ -37,9 +37,13 @@ std::vector<std::filesystem::path> Renderer::get_shaders (
 
 		preprocessor::Parser parser (include_path, file.contents);
 		if (parser.is_valid())
+		{
 			shaders.push_back (file.contents);
+		}
 		else
+		{
 			std::cerr << parser.get_errors()[0];
+		}
 	}
 	return shaders;
 }

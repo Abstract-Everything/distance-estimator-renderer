@@ -1,15 +1,16 @@
 #pragma once
 
-#include "uniform.hpp"
+#include "parser.hpp"
 #include "screen_vertex_array.hpp"
+#include "uniform.hpp"
 
 #include <GL/glew.h>
 
 #include <filesystem>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace renderer
 {
@@ -25,19 +26,12 @@ public:
 		std::filesystem::path const& shader_path);
 
 private:
-	bool                     valid      = false;
-	bool                     new_shader = false;
-	std::vector<std::string> errors;
-
-	std::string vertex_shader_code;
-	std::string fragment_shader_code;
+	bool valid = false;
 
 	GLuint              program_id = 0;
 	Screen_Vertex_Array screen_vertices;
 
-	void print_shaders (
-		std::string const& vertex_shader,
-		std::string const& fragment_shader);
+	void print_parser_errors (preprocessor::Parser const& parser);
 };
 
 } // namespace renderer

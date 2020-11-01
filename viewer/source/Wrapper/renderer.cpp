@@ -71,16 +71,8 @@ void Renderer::set_shader (QString const& shader_name)
 {
 	{
 		QMutexLocker lock (&m_mutex);
-		m_uniforms.clear();
-		const fs::path shader = m_shaders[shader_name];
-		for (std::unique_ptr<renderer::Uniform>& uniform :
-			 m_renderer_wrapper->set_shader (glsl, shader))
-		{
-			Uniform qt_uniform (*uniform);
-			m_uniforms[qt_uniform.name()] = qt_uniform;
-		}
+		shader_name_to_set = shader_name;
 	}
-	emit update_shader();
 }
 
 Uniform Renderer::get_uniform (QString const& name)
@@ -115,13 +107,44 @@ void Renderer::set_uniform (Uniform const& uniform)
 	emit update_uniform (uniform.name());
 }
 
+void Renderer::update_shader_settings()
+{
+	QMutexLocker lock (&m_mutex);
+	set_new_shader();
+	update_uniforms();
+}
+
 void Renderer::render()
 {
 	QMutexLocker lock (&m_mutex);
+	m_renderer_wrapper->render();
+}
+
+void Renderer::set_new_shader()
+{
+	if (shader_name_to_set.isEmpty())
+	{
+		return;
+	}
+
+	m_uniforms.clear();
+	const fs::path shader = m_shaders[shader_name_to_set];
+	shader_name_to_set    = "";
+
+	for (std::unique_ptr<renderer::Uniform>& uniform :
+		 m_renderer_wrapper->set_shader (glsl, shader))
+	{
+		Uniform qt_uniform (*uniform);
+		m_uniforms[qt_uniform.name()] = qt_uniform;
+	}
+	emit update_shader();
+}
+
+void Renderer::update_uniforms()
+{
 	for (Uniform const& uniform : m_uniforms.values())
 	{
 		std::unique_ptr<renderer::Uniform> renderer_uniform{uniform};
 		m_renderer_wrapper->set_uniform (*renderer_uniform);
 	}
-	m_renderer_wrapper->render();
 }

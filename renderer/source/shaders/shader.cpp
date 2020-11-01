@@ -1,7 +1,6 @@
 #include "shader.hpp"
 
 #include "gl_interface.hpp"
-#include "parser.hpp"
 
 #include <iostream>
 
@@ -12,62 +11,59 @@ std::vector<std::unique_ptr<Uniform>> Shader::change_shader (
 	std::filesystem::path const& include_path,
 	std::filesystem::path const& shader_path)
 {
+	valid = false;
 	if (shader_path.empty())
 	{
-		valid = false;
 		return {};
 	}
 
 	preprocessor::Parser parser (include_path, shader_path);
-	valid = parser.is_valid();
-	if (!valid)
+	if (!parser.is_valid())
 	{
-		print_shaders (
-			parser.get_vertex_shader_code(),
-			parser.get_fragment_shader_code());
-		errors = parser.get_errors();
+		print_parser_errors (parser);
 		return {};
 	}
 
-	vertex_shader_code   = parser.get_vertex_shader_code();
-	fragment_shader_code = parser.get_fragment_shader_code();
-	new_shader           = true;
+	auto [success, new_program_id] = gl::create_program (
+		parser.get_vertex_shader_code(),
+		parser.get_fragment_shader_code());
+
+	if (!success)
+	{
+		std::cout << "Failed to create opengl program.\n";
+		print_parser_errors (parser);
+		return {};
+	}
+
+	valid = true;
+	glDeleteProgram (program_id);
+	program_id = new_program_id;
 
 	return parser.get_uniforms();
 }
 
 void Shader::render()
 {
-	if (new_shader)
-	{
-		glDeleteProgram (program_id);
-		auto [success, new_program_id]
-			= gl::create_program (vertex_shader_code, fragment_shader_code);
-
-		valid      = success;
-		program_id = new_program_id;
-		new_shader = false;
-
-		if (!valid)
-		{
-			print_shaders (vertex_shader_code, fragment_shader_code);
-		}
-	}
-
-	glClearColor (0.7f, 0.7f, 0.7f, 1.0f);
-	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	if (valid)
 	{
+		glClearColor (0.7f, 0.7f, 0.7f, 1.0f);
+		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		glUseProgram (program_id);
 		screen_vertices.render();
 		glUseProgram (0);
+	}
+	else
+	{
+		glClearColor (1.0f, 0.0f, 0.0f, 1.0f);
+		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	}
 }
 
 void Shader::set_uniform (Uniform const& uniform)
 {
-	if (!valid || new_shader)
+	if (!valid)
 	{
 		return;
 	}
@@ -76,7 +72,6 @@ void Shader::set_uniform (Uniform const& uniform)
 	{
 		gl::set_uniform (program_id, uniform);
 	}
-
 	catch (std::bad_cast const& /* e */)
 	{
 		std::cerr << "Tried to write to " << uniform.get_name()
@@ -84,23 +79,30 @@ void Shader::set_uniform (Uniform const& uniform)
 	}
 }
 
-void Shader::print_shaders (
-	std::string const& vertex_shader,
-	std::string const& fragment_shader)
+void Shader::print_parser_errors (preprocessor::Parser const& parser)
 {
-	std::cout << "-------------------------------------------------------------"
-				 "-------------------"
+	if (!parser.get_errors().empty())
+	{
+		std::cout
+			<< "------------------------------------------------------------"
+			<< "\nParser Errors:\n";
+
+		for (std::string const& error : parser.get_errors())
+		{
+			std::cout << error << "\n";
+		}
+	}
+
+	std::cout << "------------------------------------------------------------"
 			  << "\nVertex Shader:\n"
-			  << vertex_shader
+			  << parser.get_vertex_shader_code()
 
-			  << "-------------------------------------------------------------"
-				 "-------------------"
+			  << "------------------------------------------------------------"
 			  << "\nFragment_shader:\n"
-			  << fragment_shader
+			  << parser.get_fragment_shader_code()
 
-			  << "-------------------------------------------------------------"
-				 "-------------------\n"
-			  << std::flush;
+			  << "------------------------------------------------------------"
+			  << "\n";
 }
 
 } // namespace renderer
