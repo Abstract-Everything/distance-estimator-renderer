@@ -60,8 +60,13 @@ void Renderer::set_uniform (Uniform const& uniform)
 	shader->set_uniform (uniform);
 }
 
-void Renderer::render()
+void Renderer::render (unsigned int width, unsigned int height)
 {
+	Typed_Uniform<unsigned int> resolution (
+		"v_globals.resolution",
+		{width, height});
+	set_uniform (resolution);
+
 	shader->render();
 }
 

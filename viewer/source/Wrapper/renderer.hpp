@@ -27,7 +27,7 @@ public:
 	void           set_uniform (Uniform const& uniform);
 
 	void update_shader_settings();
-	void render();
+	void render (QPoint const& resolution);
 
 signals:
 	void update_shader_list();

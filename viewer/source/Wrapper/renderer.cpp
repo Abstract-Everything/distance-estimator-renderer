@@ -114,10 +114,10 @@ void Renderer::update_shader_settings()
 	update_uniforms();
 }
 
-void Renderer::render()
+void Renderer::render (QPoint const& resolution)
 {
 	QMutexLocker lock (&m_mutex);
-	m_renderer_wrapper->render();
+	m_renderer_wrapper->render (resolution.x(), resolution.y());
 }
 
 void Renderer::set_new_shader()

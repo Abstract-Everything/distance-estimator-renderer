@@ -74,18 +74,10 @@ void Viewport_Renderer::synchronize (QQuickFramebufferObject* quick_fbo)
 
 void Viewport_Renderer::render()
 {
-	if (Singletons::renderer().exists_uniform ("v_globals.resolution"))
-	{
-		const unsigned int width
-			= static_cast<unsigned int> (framebufferObject()->width());
-		const unsigned int height
-			= static_cast<unsigned int> (framebufferObject()->height());
-		Singletons::renderer().set_uniform (Uniform (
-			"v_globals.resolution",
-			Uniform::Type::UInt,
-			{width, height}));
-	}
+	QPoint resolution{
+		static_cast<int>(framebufferObject()->width()),
+		static_cast<int>(framebufferObject()->height())};
 
-	Singletons::renderer().render();
+	Singletons::renderer().render (resolution);
 	window->resetOpenGLState();
 }

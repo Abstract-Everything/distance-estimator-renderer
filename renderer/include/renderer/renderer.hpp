@@ -27,7 +27,7 @@ public:
 
 	void set_uniform (Uniform const& uniform_data);
 
-	void render();
+	void render (unsigned int width, unsigned int height);
 
 private:
 	// Using a pointer in order to not include shader.hpp which would need to
