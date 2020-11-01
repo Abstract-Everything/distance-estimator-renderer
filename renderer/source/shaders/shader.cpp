@@ -8,11 +8,6 @@
 namespace renderer
 {
 
-void Shader::initialise_vertex_data()
-{
-	screen_vertices = std::make_unique<Screen_Vertex_Array>();
-}
-
 std::vector<std::unique_ptr<Uniform>> Shader::change_shader (
 	std::filesystem::path const& include_path,
 	std::filesystem::path const& shader_path)
@@ -41,7 +36,7 @@ std::vector<std::unique_ptr<Uniform>> Shader::change_shader (
 	return parser.get_uniforms();
 }
 
-void Shader::draw()
+void Shader::render()
 {
 	if (new_shader)
 	{
@@ -65,7 +60,7 @@ void Shader::draw()
 	if (valid)
 	{
 		glUseProgram (program_id);
-		screen_vertices->render();
+		screen_vertices.render();
 		glUseProgram (0);
 	}
 }

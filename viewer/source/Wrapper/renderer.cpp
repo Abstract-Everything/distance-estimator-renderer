@@ -41,7 +41,7 @@ Renderer::Renderer() : glsl(find_glsl_path()) {}
 void Renderer::initialise()
 {
 	QMutexLocker lock (&m_mutex);
-	m_renderer_wrapper.initialise();
+	m_renderer_wrapper = std::make_unique<renderer::Renderer>();
 	init_shaders();
 }
 
@@ -52,7 +52,7 @@ void Renderer::init_shaders()
 		   fs::path{glsl / "3d" / "signed_distance_functions"}};
 
 	for (fs::path const& shader_path :
-		 m_renderer_wrapper.get_shaders (glsl, search_paths))
+		 m_renderer_wrapper->get_shaders (glsl, search_paths))
 	{
 		std::string   std_name = shader_path.stem().string();
 		const QString name     = QString::fromStdString (std_name);
@@ -74,7 +74,7 @@ void Renderer::set_shader (QString const& shader_name)
 		m_uniforms.clear();
 		const fs::path shader = m_shaders[shader_name];
 		for (std::unique_ptr<renderer::Uniform>& uniform :
-			 m_renderer_wrapper.set_shader (glsl, shader))
+			 m_renderer_wrapper->set_shader (glsl, shader))
 		{
 			Uniform qt_uniform (*uniform);
 			m_uniforms[qt_uniform.name()] = qt_uniform;
@@ -121,7 +121,7 @@ void Renderer::render()
 	for (Uniform const& uniform : m_uniforms.values())
 	{
 		std::unique_ptr<renderer::Uniform> renderer_uniform{uniform};
-		m_renderer_wrapper.set_uniform (*renderer_uniform);
+		m_renderer_wrapper->set_uniform (*renderer_uniform);
 	}
-	m_renderer_wrapper.render();
+	m_renderer_wrapper->render();
 }

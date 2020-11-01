@@ -17,8 +17,6 @@ public:
 	Renderer();
 	~Renderer();
 
-	void initialise();
-
 	std::vector<std::filesystem::path> get_shaders (
 		std::filesystem::path const&              include_path,
 		std::vector<std::filesystem::path> const& paths);

@@ -42,5 +42,5 @@ private:
 
 	QMap<QString, std::filesystem::path> m_shaders;
 	QMap<QString, Uniform>               m_uniforms;
-	renderer::Renderer                   m_renderer_wrapper;
+	std::unique_ptr<renderer::Renderer>  m_renderer_wrapper;
 };

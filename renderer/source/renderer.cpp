@@ -12,18 +12,13 @@ namespace renderer
 
 Renderer::Renderer()
 {
+	gl::init();
 	shader = new Shader();
 }
 
 Renderer::~Renderer()
 {
 	delete shader;
-}
-
-void Renderer::initialise()
-{
-	gl::init();
-	shader->initialise_vertex_data();
 }
 
 std::vector<std::filesystem::path> Renderer::get_shaders (
@@ -63,7 +58,7 @@ void Renderer::set_uniform (Uniform const& uniform)
 
 void Renderer::render()
 {
-	shader->draw();
+	shader->render();
 }
 
 } // namespace renderer

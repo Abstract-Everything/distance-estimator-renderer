@@ -17,9 +17,7 @@ namespace renderer
 class Shader
 {
 public:
-	void initialise_vertex_data();
-
-	void draw();
+	void render();
 	void set_uniform (Uniform const& uniform);
 
 	std::vector<std::unique_ptr<Uniform>> change_shader (
@@ -34,8 +32,8 @@ private:
 	std::string vertex_shader_code;
 	std::string fragment_shader_code;
 
-	GLuint program_id   = 0;
-	std::unique_ptr<Screen_Vertex_Array> screen_vertices = nullptr;
+	GLuint              program_id = 0;
+	Screen_Vertex_Array screen_vertices;
 
 	void print_shaders (
 		std::string const& vertex_shader,
