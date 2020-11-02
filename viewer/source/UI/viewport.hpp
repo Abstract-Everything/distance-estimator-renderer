@@ -21,10 +21,12 @@ public:
 
 	Q_INVOKABLE void set_screen_input (QObject* qobject);
 
-	Camera_Screen_Input get_and_reset_camera_screen_input();
-
 private:
-	Screen_Input* screen_input = nullptr;
+	Screen_Input*     screen_input = nullptr;
+	Camera_Controller camera;
+
+	void                render();
+	Camera_Screen_Input camera_screen_input();
 };
 
 class Viewport_Renderer : public QQuickFramebufferObject::Renderer
@@ -42,7 +44,4 @@ protected:
 
 private:
 	QQuickWindow* window;
-
-	QElapsedTimer     m_timer;
-	Camera_Controller camera;
 };

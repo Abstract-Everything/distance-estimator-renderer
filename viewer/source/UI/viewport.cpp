@@ -17,7 +17,7 @@ Viewport::Viewport (QQuickItem* object) : QQuickFramebufferObject (object)
 
 QQuickFramebufferObject::Renderer* Viewport::createRenderer() const
 {
-	connect (window(), &QQuickWindow::beforeRendering, this, &Viewport::update);
+	connect (window(), &QQuickWindow::beforeRendering, this, &Viewport::render);
 	return new Viewport_Renderer (window());
 }
 
@@ -28,16 +28,35 @@ void Viewport::set_screen_input(QObject* qobject)
 		screen_input_ != nullptr
 		&& "Tried setting screen input with an invalid object");
 	screen_input = screen_input_;
+
+	connect (
+		screen_input,
+		&Screen_Input::input_updated,
+		this,
+		&Viewport::render);
 }
 
-Camera_Screen_Input Viewport::get_and_reset_camera_screen_input()
+void Viewport::render()
 {
-	return Camera_Screen_Input (
+	Camera_Screen_Input input = camera_screen_input();
+	screen_input->reset_input();
+	camera.update_uniforms (input);
+
+	if (Singletons::renderer().do_shader_settings_need_updating())
+	{
+		update();
+	}
+}
+
+Camera_Screen_Input Viewport::camera_screen_input()
+{
+	Camera_Screen_Input input = Camera_Screen_Input (
 		screen_input->move_keys(),
-		screen_input->get_and_reset_pan_direction(),
-		screen_input->get_and_reset_zoom_direction(),
+		screen_input->pan_direction(),
+		screen_input->zoom_direction(),
 		static_cast<float> (width()),
 		static_cast<float> (height()));
+	return input;
 }
 
 Viewport_Renderer::Viewport_Renderer (QQuickWindow* window)
@@ -58,18 +77,7 @@ Viewport_Renderer::createFramebufferObject (QSize const& size)
 
 void Viewport_Renderer::synchronize (QQuickFramebufferObject* quick_fbo)
 {
-	Viewport* viewport = static_cast<Viewport*> (quick_fbo);
-
-	float delta_time = static_cast<float> (m_timer.elapsed()) / 1000.0f;
-	m_timer.restart();
-
-	Camera_Screen_Input camera_screen_input
-		= viewport->get_and_reset_camera_screen_input();
-
-	camera.update_uniforms (delta_time, camera_screen_input);
-
 	Singletons::renderer().update_shader_settings();
-	update();
 }
 
 void Viewport_Renderer::render()

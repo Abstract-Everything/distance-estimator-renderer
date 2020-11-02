@@ -38,7 +38,7 @@ public:
 class Camera_Controller
 {
 public:
-	void update_uniforms (float delta_time, Camera_Screen_Input const& input);
+	void update_uniforms (Camera_Screen_Input const& input);
 
 private:
 	const QString pos_name   = "camera.position";
@@ -48,32 +48,26 @@ private:
 
 	const float scroll_wheels_to_max_zoom = 20;
 	const float scroll_speed              = 2.0f;
-	const float move_speed                = 1.0f;
+	const float move_speed                = 0.05f;
 
 	Dimensions dimensions = Dimensions::Zero;
 
-	float linear_zoom_target = 0.0f;
-	float zoom_previous      = 0.0f;
-	float zoom_target        = 0.0f;
-	float zoom_acumulated_delta = 0.0f;
-
 	void update_camera_dimensions();
 
-	void update_zoom_target (Camera_Screen_Input const& input);
-	void update_zoom (float delta_time);
-	float calculate_camera_zoom(float linear_zoom);
+	void  update_zoom (Camera_Screen_Input const& input);
+	float linear_to_decreasing_zoom (float linear_zoom);
+	float decreasing_to_linear_zoom (float decreasing_zoom);
 
-	void update_position (float delta_time, Camera_Screen_Input const& input);
+
+	void update_position (Camera_Screen_Input const& input);
 
 	void update_position_2d (
 		float                      multiplier,
-		Camera_Screen_Input const& input,
-		Uniform&                   position);
+		Camera_Screen_Input const& input);
 
 	void update_position_3d (
 		float                      multiplier,
-		Camera_Screen_Input const& input,
-		Uniform&                   position);
+		Camera_Screen_Input const& input);
 
 	void update_view (Camera_Screen_Input const& input);
 

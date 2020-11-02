@@ -80,4 +80,3 @@ Enhancements:
 		Render image by splitting it into smaller tiles.
 		Reduce detail while panning/ moving camera.
 		Render with increased detail if camera is not moving.
-		Do not rerender if scene does not change.

@@ -1,18 +1,5 @@
 #include "screen_input.hpp"
 
-namespace
-{
-
-template <typename T>
-T get_and_reset_value(T& value)
-{
-	T old_value = T{};
-	std::swap (old_value, value);
-	return old_value;
-}
-
-}
-
 Screen_Input::Screen_Input (QQuickItem* parent) : QQuickItem (parent)
 {
 	reset_move_direction();
@@ -27,17 +14,23 @@ void Screen_Input::set_event_filter (QObject* mouse_area)
 
 QMap<Qt::Key, bool> Screen_Input::move_keys() const
 {
-	return move_keys_pressed;
+	return m_move_keys_pressed;
 }
 
-QVector2D Screen_Input::get_and_reset_pan_direction()
+QVector2D Screen_Input::pan_direction() const
 {
-	return get_and_reset_value (pan_direction);
+	return m_pan_direction;
 }
 
-float Screen_Input::get_and_reset_zoom_direction()
+float Screen_Input::zoom_direction() const
 {
-	return get_and_reset_value (zoom_direction);
+	return m_zoom_direction;
+}
+
+void Screen_Input::reset_input()
+{
+	m_pan_direction = QVector2D();
+	m_zoom_direction = 0.0f;
 }
 
 bool Screen_Input::eventFilter (QObject* watched, QEvent* event)
@@ -46,18 +39,18 @@ bool Screen_Input::eventFilter (QObject* watched, QEvent* event)
 	{
 	case QEvent::HoverEnter:
 		watched->setProperty ("focus", true);
-		return true;
+		break;
 
 	case QEvent::HoverLeave:
 		watched->setProperty ("focus", false);
 		reset_move_direction();
-		return true;
+		break;
 
 	case QEvent::KeyPress:
 	case QEvent::KeyRelease:
 	{
 		update_move_direction (*static_cast<QKeyEvent*> (event));
-		return true;
+		break;
 	}
 
 	case QEvent::MouseButtonPress:
@@ -65,33 +58,36 @@ bool Screen_Input::eventFilter (QObject* watched, QEvent* event)
 	case QEvent::MouseButtonRelease:
 	{
 		update_pan_direction (*static_cast<QMouseEvent*> (event));
-		return true;
+		break;
 	}
 
 	case QEvent::Wheel:
 	{
 		update_zoom_direction (*static_cast<QWheelEvent*> (event));
-		return true;
+		break;
 	}
 
 	default: return QObject::eventFilter (watched, event);
 	}
+
+	emit input_updated();
+	return true;
 }
 
 void Screen_Input::reset_move_direction()
 {
-	move_keys_pressed[Qt::Key_A]       = false;
-	move_keys_pressed[Qt::Key_D]       = false;
-	move_keys_pressed[Qt::Key_Space]   = false;
-	move_keys_pressed[Qt::Key_Control] = false;
-	move_keys_pressed[Qt::Key_W]       = false;
-	move_keys_pressed[Qt::Key_S]       = false;
+	m_move_keys_pressed[Qt::Key_A]       = false;
+	m_move_keys_pressed[Qt::Key_D]       = false;
+	m_move_keys_pressed[Qt::Key_Space]   = false;
+	m_move_keys_pressed[Qt::Key_Control] = false;
+	m_move_keys_pressed[Qt::Key_W]       = false;
+	m_move_keys_pressed[Qt::Key_S]       = false;
 }
 
 void Screen_Input::update_move_direction (QKeyEvent const& key_event)
 {
 	Qt::Key key            = static_cast<Qt::Key> (key_event.key());
-	move_keys_pressed[key] = (key_event.type() == QEvent::KeyPress);
+	m_move_keys_pressed[key] = (key_event.type() == QEvent::KeyPress);
 }
 
 void Screen_Input::update_pan_direction (QMouseEvent const& mouse_event)
@@ -101,16 +97,16 @@ void Screen_Input::update_pan_direction (QMouseEvent const& mouse_event)
 	switch (mouse_event.type())
 	{
 	case QEvent::MouseButtonPress:
-		last_mouse_position = mouse_position;
+		m_last_mouse_position = mouse_position;
 		break;
 
 	case QEvent::MouseMove:
-		pan_direction += QVector2D (mouse_position - last_mouse_position);
-		last_mouse_position = mouse_position;
+		m_pan_direction += QVector2D (mouse_position - m_last_mouse_position);
+		m_last_mouse_position = mouse_position;
 		break;
 
 	case QEvent::MouseButtonRelease:
-		pan_direction = {0.0f, 0.0f};
+		m_pan_direction = {0.0f, 0.0f};
 		break;
 
 	default: break;
@@ -124,5 +120,5 @@ void Screen_Input::update_zoom_direction (QWheelEvent const& wheel_event)
 	{
 		return;
 	}
-	zoom_direction += qAbs(offset) / offset;
+	m_zoom_direction += qAbs(offset) / offset;
 }

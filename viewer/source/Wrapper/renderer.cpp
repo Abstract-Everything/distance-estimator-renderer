@@ -103,8 +103,16 @@ void Renderer::set_uniform (Uniform const& uniform)
 		}
 
 		m_uniforms[uniform.name()].update (uniform);
+		m_uniforms_to_update.insert (uniform.name());
 	}
 	emit update_uniform (uniform.name());
+}
+
+bool Renderer::do_shader_settings_need_updating()
+{
+	bool new_shader = !shader_name_to_set.isEmpty();
+	bool update_uniform = !m_uniforms_to_update.empty();
+	return new_shader || update_uniform;
 }
 
 void Renderer::update_shader_settings()
@@ -128,6 +136,7 @@ void Renderer::set_new_shader()
 	}
 
 	m_uniforms.clear();
+	m_uniforms_to_update.clear();
 	const fs::path shader = m_shaders[shader_name_to_set];
 	shader_name_to_set    = "";
 
@@ -136,15 +145,18 @@ void Renderer::set_new_shader()
 	{
 		Uniform qt_uniform (*uniform);
 		m_uniforms[qt_uniform.name()] = qt_uniform;
+		m_uniforms_to_update.insert (qt_uniform.name());
 	}
 	emit update_shader();
 }
 
 void Renderer::update_uniforms()
 {
-	for (Uniform const& uniform : m_uniforms.values())
+	for (QString const& uniform_name : m_uniforms_to_update)
 	{
+		Uniform&                           uniform = m_uniforms[uniform_name];
 		std::unique_ptr<renderer::Uniform> renderer_uniform{uniform};
 		m_renderer_wrapper->set_uniform (*renderer_uniform);
 	}
+	m_uniforms_to_update.clear();
 }

@@ -17,17 +17,21 @@ public:
 	Q_INVOKABLE void set_event_filter (QObject* mouse_area);
 
 	QMap<Qt::Key, bool> move_keys() const;
-	QVector2D           get_and_reset_pan_direction();
-	float               get_and_reset_zoom_direction();
+	QVector2D           pan_direction() const;
+	float               zoom_direction() const;
+	void                reset_input();
+
+signals:
+	void input_updated();
 
 protected:
 	bool eventFilter (QObject* watched, QEvent* event) override;
 
 private:
-	QMap<Qt::Key, bool> move_keys_pressed;
-	QVector2D           last_mouse_position;
-	QVector2D           pan_direction;
-	float               zoom_direction = 0.0f;
+	QMap<Qt::Key, bool> m_move_keys_pressed;
+	QVector2D           m_last_mouse_position;
+	QVector2D           m_pan_direction;
+	float               m_zoom_direction = 0.0f;
 
 	void reset_move_direction();
 	void update_move_direction (QKeyEvent const& key_event);
