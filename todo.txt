@@ -42,7 +42,6 @@ Features:
 			Hard shadows.
 
 		Materials:
-			Reflections.
 			Transmissive.
 
 Enhancements:

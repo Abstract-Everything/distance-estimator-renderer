@@ -1,21 +1,11 @@
 #requires_implementation
 
 #include "structures.glsl"
+#include "3d/utility_3d.frag"
 
 uniform Colouring colouring;
 
-float DE (vec3 position);
-vec3  normal_estimator (vec3 direction, vec3 position, float distance)
-{
-	vec3 offset = vec3 (distance * 0.5, 0.0, 0.0);
-	position -= direction * distance * 0.5f;
-	return normalize (vec3 (
-		DE (position + offset.xyy) - DE (position - offset.xyy),
-		DE (position + offset.yxy) - DE (position - offset.yxy),
-		DE (position + offset.yyx) - DE (position - offset.yyx)));
-}
-
-vec3 background_colour (vec3 position, vec3 direction)
+vec3 background_colour (vec3 direction)
 {
 	return (0.2f * direction.y) + colouring.background_colour;
 }
@@ -31,16 +21,10 @@ float glow (float closest_distance)
 	return -log (x / 1.1f + 0.1f);
 }
 
-vec3 colour_fragment (uint steps, uint max_steps, float closest_distance, bool hit, vec3 origin, vec3 direction, vec3 position)
+vec3 diffuse_colour (uint steps, uint max_steps, float closest_distance, vec3 direction, vec3 position)
 {
-	vec3 colour = background_colour (origin, direction);
-
-	if (hit)
-	{
-		vec3  normal  = vec3 (normal_estimator (direction, position, 1e-06));
-		float ambient = ambient_occlusion (steps, max_steps);
-		colour = vec3 ((0.6f + 0.4f * ambient) * dot (-direction, normal));
-	}
-
+	vec3  normal  = vec3 (normal_estimator (direction, position, 1e-06));
+	float ambient = ambient_occlusion (steps, max_steps);
+	vec3 colour = vec3 ((0.6f + 0.4f * ambient) * dot (-direction, normal));
 	return 0.9f * colour + glow (closest_distance) * 0.1f;
 }
